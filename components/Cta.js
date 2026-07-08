@@ -1,0 +1,19 @@
+import { tubeCta } from '@/lib/cta';
+
+// Gentle conversion section — kept visually secondary (free library first).
+export default function Cta({ t }) {
+  return (
+    <section className="convert">
+      <h2>{t('bookstubeHome.ctaTitle')}</h2>
+      <p>{t('bookstubeHome.ctaText')}</p>
+      <a
+        className="btn btn-cta"
+        href={tubeCta('bookstube_footer')}
+        target="_blank"
+        rel="noopener"
+      >
+        {t('bookstubeHome.ctaButton')}
+      </a>
+    </section>
+  );
+}
