@@ -3,7 +3,9 @@
 The public **bookstube.ai** free children's-book library — a Next.js (App Router) frontend
 that reads from the Books Giant Phase-0 API and iframes the existing Meteor viewer.
 
-See the migration plan in the main repo: `docs/bookstube-vercel-migration.md`.
+**Full plan / architecture / decisions:** [`docs/migration.md`](docs/migration.md) — a snapshot of
+the canonical `docs/bookstube-vercel-migration.md` in the Books Giant (Meteor) repo. Read it first
+when picking up work here.
 
 ## Architecture
 
