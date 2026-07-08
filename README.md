@@ -68,9 +68,15 @@ middleware.js            locale-prefix redirect
 3. Add the `bookstube.ai` domain in Vercel and point DNS once you're ready to cut over
    (keep the Meteor `isLibraryDomain` branch as instant rollback — see the migration doc).
 
+## Done
+
+- GA4 (`G-71PTEX1YZF`) via `next/script`, with manual SPA `page_view` tracking (no pixel).
+- Reader language handoff: iframe passes `:lang` in the URL **and** postMessages the
+  viewer (`{lang}` / `{type:'setLanguage'}`), retrying until the Meteor SPA's message
+  listener boots. Escape-to-close + body scroll-lock.
+
 ## Not yet done (post-scaffold)
 
-- Analytics wiring (GA4 + pixel env vars are read but no script tag yet).
 - Search (the API has no search endpoint; the old client-side search wasn't ported).
 - Native player (Phase 5) — currently the reader is the iframed Meteor viewer.
 - `hreflang` is emitted for the home pages; extend to detail pages if you add translated URLs.
