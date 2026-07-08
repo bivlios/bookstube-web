@@ -3,6 +3,7 @@ import { makeT, dir, LOCALES } from '@/lib/i18n';
 import { topicKey } from '@/lib/topics';
 import { OG_IMAGE } from '@/lib/cta';
 import Hero from '@/components/Hero';
+import LibrarySwitcher from '@/components/LibrarySwitcher';
 import TopicChips from '@/components/TopicChips';
 import LibraryGrid from '@/components/LibraryGrid';
 import Pagination from '@/components/Pagination';
@@ -48,6 +49,7 @@ export default async function LibraryHome({ params, searchParams }) {
 
   return (
     <main dir={dir(lang)}>
+      <LibrarySwitcher lang={lang} activeId="bookstube" />
       <Hero t={t} />
       <TopicChips t={t} active={topic} basePath={`/${lang}`} />
       <section id="library" className="library">

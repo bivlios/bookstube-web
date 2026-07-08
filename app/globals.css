@@ -42,6 +42,26 @@ a { color: inherit; text-decoration: none; }
 }
 .lang-select option { color: #333; }
 
+/* ── Library switcher ── */
+.lib-switch {
+  background: #3a2c63;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.lib-switch-inner {
+  max-width: 1200px; margin: 0 auto; padding: 8px 16px;
+  display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto;
+  scrollbar-width: none;
+}
+.lib-switch-inner::-webkit-scrollbar { display: none; }
+.lib-pill {
+  flex: 0 0 auto; white-space: nowrap;
+  font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 999px;
+  color: rgba(255, 255, 255, 0.85); background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+.lib-pill:hover { background: rgba(255, 255, 255, 0.14); color: #fff; }
+.lib-pill-active { color: #4f46e5; background: #fff; border-color: #fff; }
+
 /* ── Buttons ── */
 .btn {
   display: inline-block; border: 0; cursor: pointer; font: inherit; font-weight: 700;

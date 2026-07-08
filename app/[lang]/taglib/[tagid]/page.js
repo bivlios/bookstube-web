@@ -1,7 +1,9 @@
 import { getLibrary } from '@/lib/api';
 import { makeT, dir } from '@/lib/i18n';
 import { topicKey } from '@/lib/topics';
+import { libNameById } from '@/lib/libraries';
 import { OG_IMAGE } from '@/lib/cta';
+import LibrarySwitcher from '@/components/LibrarySwitcher';
 import TopicChips from '@/components/TopicChips';
 import LibraryGrid from '@/components/LibraryGrid';
 import Pagination from '@/components/Pagination';
@@ -39,10 +41,11 @@ export default async function TagLibrary({ params, searchParams }) {
   const base = `/${lang}/taglib/${tagid}`;
   const heading = topic
     ? t(`bookstubeHome.${topicKey(topic) || ''}`)
-    : data.library?.title || t('bookstubeHome.popularBooks');
+    : libNameById(tagid, lang) || data.library?.title || t('bookstubeHome.popularBooks');
 
   return (
     <main dir={dir(lang)}>
+      <LibrarySwitcher lang={lang} activeId={tagid} />
       <TopicChips t={t} active={topic} basePath={base} />
       <section id="library" className="library">
         <h1 className="section-title">{heading}</h1>
