@@ -4,6 +4,7 @@ import { makeT, dir } from '@/lib/i18n';
 import { tubeCta, SITE_URL } from '@/lib/cta';
 import LibraryGrid from '@/components/LibraryGrid';
 import ReaderButton from '@/components/ReaderButton';
+import BookReader from '@/components/BookReader';
 
 export const revalidate = 600;
 
@@ -77,7 +78,17 @@ export default async function BookDetail({ params }) {
           ) : null}
 
           <div className="detail-actions">
-            <ReaderButton readerUrl={book.readerUrl} lang={lang} label={t('bookPage.readNow')} />
+            {book.reader?.published && book.reader.pageCount > 0 ? (
+              <BookReader
+                pages={book.reader.pageImages}
+                pageWidth={book.reader.pageWidth}
+                pageHeight={book.reader.pageHeight}
+                rtl={bDir === 'rtl'}
+                label={t('bookPage.readNow')}
+              />
+            ) : (
+              <ReaderButton readerUrl={book.readerUrl} lang={lang} label={t('bookPage.readNow')} />
+            )}
             <a className="btn btn-outline" href={tubeCta('book_detail_similar')} target="_blank" rel="noopener">
               {t('bookPage.createSimilar')}
             </a>
