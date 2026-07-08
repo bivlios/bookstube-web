@@ -33,8 +33,8 @@ a { color: inherit; text-decoration: none; }
   background: linear-gradient(135deg, var(--purple-2) 0%, var(--purple) 100%);
   color: #fff;
 }
-.brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 18px; }
-.brand-mark { font-size: 22px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; }
+.brand-logo { height: 36px; width: auto; display: block; }
 .header-actions { display: flex; align-items: center; gap: 10px; }
 .lang-select {
   border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.14);
