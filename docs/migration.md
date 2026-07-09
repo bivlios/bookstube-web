@@ -169,8 +169,13 @@ curl -sI 'library.booksgiant.com/anything' | grep -i x-robots-tag   # expect noi
   react-pageflip (StPageFlip) flipbook, lazy-imported on open (SSR-safe, small bundle);
   fullscreen dialog, keyboard, page counter, `onError` per page. Detail page picks BookReader when
   `book.reader.published`, else the iframe `ReaderButton`. Styles in `globals.css`.
-- **RTL v1 caveat:** correct page order + swapped controls, but no native RTL spread (right-hand
-  cover) yet — StPageFlip has no RTL mode; that's the main follow-up polish.
+- **RTL (he/ar): DONE.** StPageFlip has no native RTL mode, so `BookReader` reverses the page
+  array before handing it to the engine (logical page 0 becomes the rightmost page) and opens at
+  the reversed `startPage`; the book now opens/flips right-to-left with the cover on the right.
+  Page numbers exposed to the reader (counter, keyboard, buttons) stay in natural 1..n order via a
+  `toLogical()` remap. Verified in-browser against a real published Hebrew book — correct reading
+  order, monotonic counter, LTR unaffected. (Technique ported from the `react-pageflip-rtl` fork,
+  kept inline rather than added as a dependency — it's an unmaintained single-author package.)
 
 **To activate:** (1) deploy the Meteor app (ships the `reader` block), (2) run the batch-publish
 tool so books are `pages_published`, (3) `git push` `bookstube-web` → Vercel. Then published books
