@@ -6,7 +6,7 @@ export default function Header({ lang, t }) {
     <header className="site-header">
       <a href={`/${lang}`} className="brand">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/wiz-sml.png" alt={t('ui.booksgiant')} className="brand-logo" />
+        <img src="/images/bookstube-logo.png" alt={t('ui.booksgiant')} className="brand-logo" />
         <span className="brand-name">{t('ui.booksgiant')}</span>
       </a>
       <div className="header-actions">

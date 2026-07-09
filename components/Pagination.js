@@ -1,8 +1,9 @@
 // Server-rendered prev/next links (crawlable, no client JS).
-export default function Pagination({ total, skip, limit, base, topic }) {
+export default function Pagination({ total, skip, limit, base, topic, bookLang }) {
   const mk = (s) => {
     const p = new URLSearchParams();
     if (topic) p.set('topic', topic);
+    if (bookLang) p.set('bookLang', bookLang);
     if (s) p.set('skip', String(s));
     const q = p.toString();
     return q ? `${base}?${q}` : base;

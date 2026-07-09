@@ -176,11 +176,18 @@ curl -sI 'library.booksgiant.com/anything' | grep -i x-robots-tag   # expect noi
   `toLogical()` remap. Verified in-browser against a real published Hebrew book — correct reading
   order, monotonic counter, LTR unaffected. (Technique ported from the `react-pageflip-rtl` fork,
   kept inline rather than added as a dependency — it's an unmaintained single-author package.)
+- **TTS narration: DONE (both sides, pending the Meteor deploy).** API (`bookstube-read.js`):
+  reads `ttsAudio` and adds `reader.tts` + `reader.pageAudio[]` (non-deleted pages sorted by
+  `order`, each `_id` mapped through `ttsAudio` → URL-or-null, aligned with `pageImages`).
+  Player (`components/BookReader.js`): 🔊 button (rendered only when audio exists) plays the
+  visible spread's audio in story order via `new Audio(url)`, auto-flips forward (RTL-aware),
+  restarts on manual flips, stops on last page/close — mirrors the Meteor viewer's auto-read.
+  Verified in-browser with the narrated panda book's real S3 wavs. See `native-player.md`.
 
-**To activate:** (1) deploy the Meteor app (ships the `reader` block), (2) run the batch-publish
-tool so books are `pages_published`, (3) `git push` `bookstube-web` → Vercel. Then published books
-open the native flipbook; unpublished keep the iframe. Not visually flip-tested yet (needs a
-published book + deployed API).
+**To activate:** (1) deploy the Meteor app (ships the `reader` block incl. `pageAudio`), (2) run
+the batch-publish tool so books are `pages_published` (+ narrate via the admin TTS tools), (3)
+`git push` `bookstube-web` → Vercel. Then published books open the native flipbook (with
+narration where `ttsAudio` exists); unpublished keep the iframe.
 
 ---
 

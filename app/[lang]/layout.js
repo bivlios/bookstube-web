@@ -13,6 +13,11 @@ export function generateStaticParams() {
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
+  icons: {
+    icon: '/images/robi_icon.png',
+    shortcut: '/images/robi_icon.png',
+    apple: '/images/robi_icon.png',
+  },
 };
 
 export default function RootLayout({ children, params }) {

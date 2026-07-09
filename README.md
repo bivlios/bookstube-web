@@ -7,6 +7,9 @@ that reads from the Books Giant Phase-0 API and iframes the existing Meteor view
 the canonical `docs/bookstube-vercel-migration.md` in the Books Giant (Meteor) repo. Read it first
 when picking up work here.
 
+**Native reader + RTL:** [`docs/native-player.md`](docs/native-player.md) — how the `react-pageflip`
+flipbook works, when it's used instead of the iframe, and the RTL (he/ar) implementation.
+
 ## Architecture
 
 ```
@@ -56,8 +59,8 @@ app/
     taglib/[tagid]/page.js curated collection
     not-found.js
   sitemap.js  robots.js  globals.css
-components/               Hero, TopicChips, LibraryGrid, BookCard, Pagination,
-                         Cta, Header, LangSwitcher, ReaderButton(client)
+components/               Hero, TopicChips, LibraryGrid, BookCard, Pagination, Cta, Header,
+                         LangSwitcher, ReaderButton(iframe), BookReader(native flipbook, RTL)
 lib/                      api.js, i18n.js, topics.js, cta.js, locales/
 middleware.js            locale-prefix redirect
 ```
@@ -76,9 +79,13 @@ middleware.js            locale-prefix redirect
 - Reader language handoff: iframe passes `:lang` in the URL **and** postMessages the
   viewer (`{lang}` / `{type:'setLanguage'}`), retrying until the Meteor SPA's message
   listener boots. Escape-to-close + body scroll-lock.
+- Native `react-pageflip` player for published books, with **RTL (he/ar)** reading order —
+  see [`docs/native-player.md`](docs/native-player.md). Falls back to the iframe when unpublished.
 
 ## Not yet done (post-scaffold)
 
 - Search (the API has no search endpoint; the old client-side search wasn't ported).
-- Native player (Phase 5) — currently the reader is the iframed Meteor viewer.
+- Native-player TTS: **player side done** (narration button + auto-advance in `BookReader`,
+  consumes `reader.pageAudio`); waiting on the Galaxy deploy of the read-API change that ships
+  the audio URLs. See `docs/native-player.md` → "TTS narration".
 - `hreflang` is emitted for the home pages; extend to detail pages if you add translated URLs.

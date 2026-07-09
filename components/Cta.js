@@ -14,6 +14,8 @@ export default function Cta({ t }) {
       >
         {t('bookstubeHome.ctaButton')}
       </a>
+<br/><br/>
+        <img src="/images/creator.jpg" alt="creator" className="books-tube-logo" />
     </section>
   );
 }

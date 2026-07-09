@@ -1,17 +1,19 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 // Opens the existing Meteor viewer (library.booksgiant.com/sample-book/:id/:lang)
 // in a fullscreen iframe dialog. Player + TTS live inside the iframe.
+//
+// Controlled by the parent (`open`/`onClose`) so the same overlay can be triggered
+// from more than one place on the page (the cover image as well as the CTA button).
 //
 // Language handoff: the viewer reads the URL :lang on mount, but it also listens
 // for a postMessage ({lang} or {type:'setLanguage', lang}). Its message listener
 // attaches only after the Meteor SPA boots — which is *after* iframe onLoad — so a
 // single on-load post can miss. We post on load and retry a few times until the
 // listener is up, and also reply if the viewer ever asks the parent for a language.
-export default function ReaderButton({ readerUrl, lang, label }) {
-  const [open, setOpen] = useState(false);
+export default function ReaderButton({ open, onClose, readerUrl, lang, label }) {
   const iframeRef = useRef(null);
   const src = `${readerUrl}/${lang}`;
 
@@ -61,48 +63,43 @@ export default function ReaderButton({ readerUrl, lang, label }) {
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const onKey = (e) => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', onKey);
     return () => {
       document.body.style.overflow = prevOverflow;
       window.removeEventListener('keydown', onKey);
     };
-  }, [open]);
+  }, [open, onClose]);
+
+  if (!open) return null;
 
   return (
-    <>
-      <button className="btn btn-read" onClick={() => setOpen(true)}>
-        {label}
-      </button>
-      {open && (
-        <div
-          className="reader-overlay"
-          onClick={() => setOpen(false)}
-          role="dialog"
-          aria-modal="true"
-          aria-label={label}
-        >
-          <div className="reader-frame" onClick={(e) => e.stopPropagation()}>
-            <button className="reader-close" onClick={() => setOpen(false)} aria-label="Close">
-              ×
-            </button>
-            <iframe
-              ref={iframeRef}
-              src={src}
-              title={label}
-              onLoad={() => {
-                const win = iframeRef.current?.contentWindow;
-                if (!win) return;
-                win.postMessage({ type: 'setLanguage', lang }, readerOrigin);
-                win.postMessage({ lang }, readerOrigin);
-              }}
-              allow="autoplay; fullscreen"
-              allowFullScreen
-            />
-          </div>
-        </div>
-      )}
-    </>
+    <div
+      className="reader-overlay"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={label}
+    >
+      <div className="reader-frame" onClick={(e) => e.stopPropagation()}>
+        <button className="reader-close" onClick={onClose} aria-label="Close">
+          ×
+        </button>
+        <iframe
+          ref={iframeRef}
+          src={src}
+          title={label}
+          onLoad={() => {
+            const win = iframeRef.current?.contentWindow;
+            if (!win) return;
+            win.postMessage({ type: 'setLanguage', lang }, readerOrigin);
+            win.postMessage({ lang }, readerOrigin);
+          }}
+          allow="autoplay; fullscreen"
+          allowFullScreen
+        />
+      </div>
+    </div>
   );
 }
