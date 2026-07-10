@@ -9,7 +9,7 @@ import AnimatedLibrary from '@/components/AnimatedLibrary';
 import Cta from '@/components/Cta';
 
 export const revalidate = 300;
-const LIMIT = 24;
+const LIMIT = 20; // two full shelves of 10 per page (see BookShelf / PER_SHELF)
 
 export async function generateMetadata({ params }) {
   const t = makeT(params.lang);

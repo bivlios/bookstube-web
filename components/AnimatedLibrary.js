@@ -2,7 +2,14 @@
 
 import { useMemo, useRef, useState } from 'react';
 import { makeT, isRTL } from '@/lib/i18n';
-import BookCard from './BookCard';
+import BookShelf from './BookShelf';
+
+const PER_SHELF = 10;
+const chunk = (arr, n) => arr.reduce((rows, b, i) => {
+  if (i % n === 0) rows.push([]);
+  rows[rows.length - 1].push(b);
+  return rows;
+}, []);
 
 // The book grid + prev/next arrows, with an animated slide between pages. The arrows are
 // real crawlable <a href> paginated links (so SEO + no-JS still work), but clicks are
@@ -102,10 +109,12 @@ export default function AnimatedLibrary({
   const prevGlyph = rtl ? '›' : '‹';
   const nextGlyph = rtl ? '‹' : '›';
 
-  const Grid = ({ list }) => (
-    <div className="grid">
-      {list.map((b) => (
-        <BookCard key={b.bookId} book={b} lang={lang} t={t} />
+  // A page of books renders as a vertical stack of shelves (rows of up to PER_SHELF that
+  // scroll horizontally). The whole stack still slides in/out as one unit during paging.
+  const Shelves = ({ list }) => (
+    <div className="shelves">
+      {chunk(list, PER_SHELF).map((row, i) => (
+        <BookShelf key={row[0]?.bookId || i} books={row} lang={lang} t={t} />
       ))}
     </div>
   );
@@ -115,11 +124,11 @@ export default function AnimatedLibrary({
       <div className={`anim-viewport ${outgoing ? 'is-animating' : ''}`}>
         {outgoing ? (
           <div className={`anim-layer anim-layer-out ${outClass(outgoing.dir)}`} aria-hidden="true">
-            <Grid list={outgoing.books} />
+            <Shelves list={outgoing.books} />
           </div>
         ) : null}
         <div key={skip} className={`anim-layer ${outgoing ? inClass(outgoing.dir) : ''}`}>
-          <Grid list={books} />
+          <Shelves list={books} />
         </div>
       </div>
 

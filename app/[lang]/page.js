@@ -12,7 +12,7 @@ import ParentValue from '@/components/ParentValue';
 import Cta from '@/components/Cta';
 
 export const revalidate = 300;
-const LIMIT = 24;
+const LIMIT = 20; // two full shelves of 10 per page (see BookShelf / PER_SHELF)
 
 export function generateStaticParams() {
   return LOCALES.map((lang) => ({ lang }));
