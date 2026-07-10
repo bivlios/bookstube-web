@@ -292,12 +292,46 @@ a.pager-btn:active { transform: scale(.96); }
 .reader-bar-controls .narr-on:hover { background: #ea6a0a; }
 .reader-close-bar { margin-inline-start: 6px; background: rgba(255, 255, 255, 0.12) !important; font-size: 24px !important; }
 .reader-close-bar:hover { background: rgba(255, 80, 80, 0.55) !important; }
+.reader-bar-controls .fs-btn { font-size: 20px; }
 @media (max-width: 560px) {
   .reader-bar { padding: 8px 12px; }
   .reader-bar-meta .rb-title { font-size: 15px; max-width: 40vw; }
   .reader-bar-controls { gap: 8px; }
   .reader-bar-controls button { width: 42px; height: 42px; font-size: 22px; }
 }
+
+/* ── Inline reader (lives in the book page) ── */
+/* Default (inline): an in-flow block. `.is-fullscreen` promotes the same node to the
+   overlay used by the modal, so toggling never remounts the flipbook. */
+.reader-embed { width: min(1100px, 100%); margin: 28px auto; }
+.reader-embed:not(.is-fullscreen) .native-reader { height: min(72vh, 640px); }
+/* Inline: book on top, controls below. Its pill is styled for the light page. */
+.reader-embed:not(.is-fullscreen) .reader-bar {
+  margin-bottom: 0; margin-top: 12px; color: var(--ink);
+  background: #f6f3fc; border-color: var(--line);
+}
+.reader-embed:not(.is-fullscreen) .reader-bar-meta .rb-author { color: var(--ink-soft); }
+.reader-embed:not(.is-fullscreen) .reader-bar-controls button {
+  background: #eae4f6; color: var(--ink);
+}
+.reader-embed:not(.is-fullscreen) .reader-bar-controls button:hover { background: #ddd3f0; }
+.reader-embed:not(.is-fullscreen) .reader-bar-controls .narr-on,
+.reader-embed:not(.is-fullscreen) .reader-bar-controls .narr-on:hover { color: #fff; }
+
+/* Fullscreen: mirror .reader-overlay, and lift the control bar back above the book.
+   `width: auto` overrides the inline width so `inset: 0` fills the whole viewport (an
+   explicit width otherwise wins over inset and anchors the overlay to one side). */
+.reader-embed.is-fullscreen {
+  position: fixed; inset: 0; z-index: 1000; margin: 0; width: auto;
+  background: rgba(0, 0, 0, .7); display: grid; place-items: center; padding: 16px;
+}
+/* Native browser fullscreen (Fullscreen API) — element fills the screen already. */
+.reader-embed:fullscreen { padding: 24px; }
+.reader-embed:-webkit-full-screen { padding: 24px; }
+.reader-embed.is-fullscreen .reader-bar { order: -1; }
+/* Grow the book to fill the fullscreen viewport — much larger than the inline size,
+   capped at 1800px wide (a two-page spread ≈ 900px per page) so it never gets unwieldy. */
+.reader-embed.is-fullscreen .native-reader { width: min(1800px, 100%); height: min(96vh, 1150px); }
 
 /* ── Featured book ── */
 .featured { max-width: 1000px; margin: 8px auto 0; padding: 8px 16px; }

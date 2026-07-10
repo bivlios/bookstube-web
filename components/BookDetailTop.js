@@ -11,57 +11,63 @@ import ReaderButton from './ReaderButton';
 // its own translator from the plain `lang` string instead.
 export default function BookDetailTop({ book, lang, bDir, readingMinutes, similarHref }) {
   const t = makeT(lang);
-  const [open, setOpen] = useState(false);
   const usesNative = book.reader?.published && book.reader.pageCount > 0;
+  // Native books show a live inline reader; `fullscreen` expands it. Legacy iframe books
+  // keep the button→modal flow via `open`.
+  const [fullscreen, setFullscreen] = useState(false);
+  const [open, setOpen] = useState(false);
   const readLabel = t('bookPage.readNow');
+  const openReader = () => (usesNative ? setFullscreen(true) : setOpen(true));
 
   return (
-    <div className="detail-top">
-      <button
-        type="button"
-        className="detail-cover-btn"
-        onClick={() => setOpen(true)}
-        aria-label={readLabel}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={book.coverUrl} alt={book.title} className="detail-cover" />
-        <span className="cover-play-hint" aria-hidden="true">▶</span>
-      </button>
+    <>
+      <div className="detail-top">
+        <button
+          type="button"
+          className="detail-cover-btn"
+          onClick={openReader}
+          aria-label={readLabel}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={book.coverUrl} alt={book.title} className="detail-cover" />
+          <span className="cover-play-hint" aria-hidden="true">▶</span>
+        </button>
 
-      <div className="detail-info" dir={bDir}>
-        <h1>{book.title}</h1>
-        {book.author?.name ? <p className="author">{t('book.by')}{book.author.name}</p> : null}
+        <div className="detail-info" dir={bDir}>
+          <h1>{book.title}</h1>
+          {book.author?.name ? <p className="author">{t('book.by')}{book.author.name}</p> : null}
 
-        <div className="facts">
-          {book.age ? <span>{t('bookPage.age')}: {book.age.min}–{book.age.max}</span> : null}
-          <span>{t('bookPage.readingTime')}: ~{readingMinutes} {t('bookPage.minutes')}</span>
-          <span>{t('bookPage.language')}: {(book.orig_language || '').toUpperCase()}</span>
-        </div>
-
-        {book.summery ? <p className="summary">{book.summery}</p> : null}
-
-        {book.topics?.length ? (
-          <div className="topics-inline">
-            {book.topics.map((tp) => (
-              <span key={tp} className="chip">{tp}</span>
-            ))}
+          <div className="facts">
+            {book.age ? <span>{t('bookPage.age')}: {book.age.min}–{book.age.max}</span> : null}
+            <span>{t('bookPage.readingTime')}: ~{readingMinutes} {t('bookPage.minutes')}</span>
+            <span>{t('bookPage.language')}: {(book.orig_language || '').toUpperCase()}</span>
           </div>
-        ) : null}
 
-        <div className="detail-actions">
-          <button type="button" className="btn btn-read" onClick={() => setOpen(true)}>
-            {readLabel}
-          </button>
-          <a className="btn btn-outline" href={similarHref} target="_blank" rel="noopener">
-            {t('bookPage.createSimilar')}
-          </a>
+          {book.summery ? <p className="summary">{book.summery}</p> : null}
+
+          {book.topics?.length ? (
+            <div className="topics-inline">
+              {book.topics.map((tp) => (
+                <span key={tp} className="chip">{tp}</span>
+              ))}
+            </div>
+          ) : null}
+
+          <div className="detail-actions">
+            <button type="button" className="btn btn-read" onClick={openReader}>
+              {readLabel}
+            </button>
+            <a className="btn btn-outline" href={similarHref} target="_blank" rel="noopener">
+              {t('bookPage.createSimilar')}
+            </a>
+          </div>
         </div>
       </div>
 
       {usesNative ? (
         <BookReader
-          open={open}
-          onClose={() => setOpen(false)}
+          fullscreen={fullscreen}
+          onFullscreenChange={setFullscreen}
           pages={book.reader.pageImages}
           audio={book.reader.pageAudio}
           pageWidth={book.reader.pageWidth}
@@ -86,6 +92,6 @@ export default function BookDetailTop({ book, lang, bDir, readingMinutes, simila
           label={readLabel}
         />
       )}
-    </div>
+    </>
   );
 }

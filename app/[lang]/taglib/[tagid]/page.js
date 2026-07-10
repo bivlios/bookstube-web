@@ -1,7 +1,7 @@
 import { getLibrary } from '@/lib/api';
 import { makeT, dir } from '@/lib/i18n';
 import { topicKey } from '@/lib/topics';
-import { libNameById } from '@/lib/libraries';
+import { libBySlug, libName, libSlug } from '@/lib/libraries';
 import { OG_IMAGE } from '@/lib/cta';
 import LibrarySwitcher from '@/components/LibrarySwitcher';
 import TopicChips from '@/components/TopicChips';
@@ -13,14 +13,17 @@ const LIMIT = 24;
 
 export async function generateMetadata({ params }) {
   const t = makeT(params.lang);
-  const data = await getLibrary({ lib: params.tagid, limit: 1 }).catch(() => null);
-  const libTitle = data?.library?.title;
+  const lib = libBySlug(params.tagid);
+  const libId = lib?.id || params.tagid;
+  const canonicalSeg = lib ? libSlug(lib) : params.tagid;
+  const data = await getLibrary({ lib: libId, limit: 1 }).catch(() => null);
+  const libTitle = (lib && libName(lib, params.lang)) || data?.library?.title;
   const title = libTitle ? `${libTitle} — BooksTube` : t('meta.bookstubeTitle');
   const description = t('meta.bookstubeDesc');
   return {
     title,
     description,
-    alternates: { canonical: `/${params.lang}/taglib/${params.tagid}` },
+    alternates: { canonical: `/${params.lang}/taglib/${canonicalSeg}` },
     openGraph: { title, description, type: 'website', images: [OG_IMAGE] },
   };
 }
@@ -31,20 +34,26 @@ export default async function TagLibrary({ params, searchParams }) {
   const topic = searchParams?.topic || undefined;
   const skip = Number(searchParams?.skip) || 0;
 
-  const data = (await getLibrary({ lib: tagid, lang, topic, skip, limit: LIMIT })) || {
+  // The URL segment is a friendly slug (legacy raw ids still resolve); the read API wants
+  // the real TagLibraries._id. URLs keep the slug, everything data-facing uses the id.
+  const lib = libBySlug(tagid);
+  const libId = lib?.id || tagid;
+  const slug = lib ? libSlug(lib) : tagid;
+
+  const data = (await getLibrary({ lib: libId, lang, topic, skip, limit: LIMIT })) || {
     books: [],
     total: 0,
     library: null,
   };
 
-  const base = `/${lang}/taglib/${tagid}`;
+  const base = `/${lang}/taglib/${slug}`;
   const heading = topic
     ? t(`bookstubeHome.${topicKey(topic) || ''}`)
-    : libNameById(tagid, lang) || data.library?.title || t('bookstubeHome.popularBooks');
+    : (lib && libName(lib, lang)) || data.library?.title || t('bookstubeHome.popularBooks');
 
   return (
     <main dir={dir(lang)}>
-      <LibrarySwitcher lang={lang} activeId={tagid} />
+      <LibrarySwitcher lang={lang} activeId={libId} />
       <TopicChips t={t} active={topic} basePath={base} />
       <section id="library" className="library">
         <h1 className="section-title">
@@ -54,7 +63,7 @@ export default async function TagLibrary({ params, searchParams }) {
         {data.books.length ? (
           <AnimatedLibrary
             lang={lang}
-            lib={tagid}
+            lib={libId}
             topic={topic}
             initialBooks={data.books}
             total={data.total}

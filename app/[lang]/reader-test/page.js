@@ -15,16 +15,16 @@ const pages = Array.from({ length: 16 }, (_, i) => `${S3}/books/pages/${BOOK_ID}
 const audio = pages.map((_, i) => (i <= 1 ? `${S3}/books/tts/${BOOK_ID}/${i}.wav` : null));
 
 export default function ReaderTest() {
-  const [open, setOpen] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
   return (
     <main style={{ padding: 40, textAlign: 'center' }}>
-      <h1>Reader test — TTS narration (RTL)</h1>
-      <button className="btn btn-primary" onClick={() => setOpen(true)}>
-        Open narrated reader
+      <h1>Reader test — inline + TTS narration (RTL)</h1>
+      <button className="btn btn-primary" onClick={() => setFullscreen(true)}>
+        Open fullscreen
       </button>
       <BookReader
-        open={open}
-        onClose={() => setOpen(false)}
+        fullscreen={fullscreen}
+        onFullscreenChange={setFullscreen}
         pages={pages}
         audio={audio}
         pageWidth={450}

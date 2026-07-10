@@ -6,8 +6,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 // react-pageflip (StPageFlip). No iframe, no Meteor. `react-pageflip` is imported
 // lazily (only when the reader opens) so it never runs during SSR and refs still work.
 //
-// Controlled by the parent (`open`/`onClose`) so the same overlay can be triggered
-// from more than one place on the page (the cover image as well as the CTA button).
+// The reader lives inline in the book page (always mounted for a published book). A
+// `fullscreen` flag (owned by the parent so the cover / CTA can trigger it) restyles the
+// same DOM node into a fixed overlay — the flipbook is never remounted, so the current
+// page and any running narration survive the toggle. `size="stretch"` re-fits the book to
+// whatever size the container becomes.
 //
 // Page model — a `slides` array (logical, LTR reading order) built from the source
 // images: [cover, info, ...rest], padded with a blank page when the count is odd so
@@ -21,11 +24,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 // reversal is an internal detail. `toLogical()` converts the engine's internal index
 // back to a logical slide, and `startPageIndex` opens the book on logical slide 0.
 export default function BookReader({
-  open, onClose, pages, audio, pageWidth, pageHeight, rtl,
+  fullscreen, onFullscreenChange, pages, audio, pageWidth, pageHeight, rtl,
   label, listenLabel, title, author, illustrator, byLabel, poweredByLabel, brandLabel, brandHref,
 }) {
   const [Flip, setFlip] = useState(null);
   const bookRef = useRef(null);
+  const embedRef = useRef(null); // outer container — observed for lazy engine load
   const [page, setPage] = useState(0); // logical slide (0-based)
 
   // Narration: each slide carries its own audio (null = silent). Pre-generated TTS on
@@ -72,11 +76,21 @@ export default function BookReader({
   const toLogical = (i) => (rtl ? total - 1 - i : i);
   const startPageIndex = rtl ? Math.max(total - 1, 0) : 0;
 
+  // Lazy-load the flip engine when the reader scrolls near the viewport (or right away if
+  // it's already opened fullscreen) so the page ships without executing StPageFlip for
+  // visitors who never reach the book.
   useEffect(() => {
-    if (open && !Flip) {
-      import('react-pageflip').then((m) => setFlip(() => m.default)).catch(() => {});
-    }
-  }, [open, Flip]);
+    if (Flip) return undefined;
+    const load = () => import('react-pageflip').then((m) => setFlip(() => m.default)).catch(() => {});
+    if (fullscreen) { load(); return undefined; }
+    const el = embedRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') { load(); return undefined; }
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) { load(); io.disconnect(); }
+    }, { rootMargin: '400px' });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [Flip, fullscreen]);
 
   const pageFlip = () => bookRef.current?.pageFlip?.();
   // Logical navigation: "next" always advances the story. For RTL, advancing the story
@@ -148,12 +162,14 @@ export default function BookReader({
     }
   };
 
+  // Only fullscreen locks page scroll and captures the keyboard — inline must never
+  // hijack the page's scroll or arrow keys.
   useEffect(() => {
-    if (!open) return undefined;
+    if (!fullscreen) return undefined;
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const onKey = (e) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') onFullscreenChange(false);
       // Arrow keys map to physical book direction: the right arrow always turns the
       // page on the right (advances in LTR, goes back in RTL), and vice-versa.
       else if (e.key === 'ArrowRight') (rtl ? goPrev() : goNext());
@@ -164,18 +180,40 @@ export default function BookReader({
       document.body.style.overflow = prevOverflow;
       window.removeEventListener('keydown', onKey);
     };
-  }, [open, rtl, onClose]);
+  }, [fullscreen, rtl, onFullscreenChange]);
 
-  // Reset to the opening page whenever the reader closes, so re-opening starts fresh.
-  // Also kill any playing narration — the component stays mounted while hidden.
+  // Real browser fullscreen (like YouTube's) when the API is available. The .is-fullscreen
+  // CSS overlay is the always-correct fallback (and what shows on iOS Safari, which has no
+  // element fullscreen), so this is best-effort — rejections are ignored.
   useEffect(() => {
-    if (!open) {
-      setPage(0);
-      stopAudio();
-      setNarrating(false);
-      narratingRef.current = false;
+    const el = embedRef.current;
+    if (!el) return undefined;
+    const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+    if (fullscreen && !fsEl()) {
+      (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el)?.catch?.(() => {});
+    } else if (!fullscreen && fsEl()) {
+      (document.exitFullscreen || document.webkitExitFullscreen)?.call(document)?.catch?.(() => {});
     }
-  }, [open]);
+    // The container changes size on toggle; StPageFlip only re-fits (`size="stretch"`) on a
+    // window resize, so nudge it once the new layout settles — covers the CSS-only fallback
+    // (iOS) where entering fullscreen fires no resize of its own.
+    const nudge = setTimeout(() => window.dispatchEvent(new Event('resize')), 120);
+    return () => clearTimeout(nudge);
+  }, [fullscreen]);
+
+  // Keep our state in sync when the user leaves native fullscreen via Esc / the browser UI.
+  useEffect(() => {
+    const onFsChange = () => {
+      const active = document.fullscreenElement || document.webkitFullscreenElement;
+      if (!active && fullscreen) onFullscreenChange(false);
+    };
+    document.addEventListener('fullscreenchange', onFsChange);
+    document.addEventListener('webkitfullscreenchange', onFsChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', onFsChange);
+      document.removeEventListener('webkitfullscreenchange', onFsChange);
+    };
+  }, [fullscreen, onFullscreenChange]);
 
   const w = pageWidth || 450;
   const h = pageHeight || 450;
@@ -185,36 +223,19 @@ export default function BookReader({
   const prevGlyph = rtl ? '›' : '‹';
   const nextGlyph = rtl ? '‹' : '›';
 
-  if (!open) return null;
+  // Fullscreen backdrop click (outside the book) collapses back to the inline reader.
+  const onBackdrop = fullscreen ? () => onFullscreenChange(false) : undefined;
 
   return (
-    <div className="reader-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label={label}>
+    <div
+      ref={embedRef}
+      className={`reader-embed${fullscreen ? ' is-fullscreen' : ''}`}
+      onClick={onBackdrop}
+      role={fullscreen ? 'dialog' : 'group'}
+      aria-modal={fullscreen ? 'true' : undefined}
+      aria-label={label}
+    >
       <div className="native-reader" onClick={(e) => e.stopPropagation()}>
-        {/* Control bar above the book: title/author on one side, navigation + close on the other. */}
-        <div className="reader-bar" dir={rtl ? 'rtl' : 'ltr'}>
-          <div className="reader-bar-meta">
-            {title ? <span className="rb-title">{title}</span> : null}
-            {author ? <span className="rb-author">{byLabel}{author}</span> : null}
-          </div>
-          <div className="reader-bar-controls">
-            <button onClick={goPrev} aria-label="Previous">{prevGlyph}</button>
-            <span className="rb-count" dir="ltr">{Math.min(page + 1, countTotal)} / {countTotal}</span>
-            <button onClick={goNext} aria-label="Next">{nextGlyph}</button>
-            {hasTts ? (
-              <button
-                onClick={toggleNarration}
-                className={`narr-btn ${narrating ? 'narr-on' : ''}`}
-                aria-pressed={narrating}
-                aria-label={listenLabel || 'Listen'}
-                title={listenLabel || 'Listen'}
-              >
-                {narrating ? '⏸' : '🔊'}
-              </button>
-            ) : null}
-            <button className="reader-close-bar" onClick={onClose} aria-label="Close">×</button>
-          </div>
-        </div>
-
         <div className="flip-wrap">
           {Flip ? (
             <Flip
@@ -267,6 +288,39 @@ export default function BookReader({
           ) : (
             <div className="reader-loading">…</div>
           )}
+        </div>
+
+        {/* Control bar below the book (inline). In fullscreen, CSS `order` lifts it above. */}
+        <div className="reader-bar" dir={rtl ? 'rtl' : 'ltr'}>
+          <div className="reader-bar-meta">
+            {title ? <span className="rb-title">{title}</span> : null}
+            {author ? <span className="rb-author">{byLabel}{author}</span> : null}
+          </div>
+          <div className="reader-bar-controls">
+            <button onClick={goPrev} aria-label="Previous">{prevGlyph}</button>
+            <span className="rb-count" dir="ltr">{Math.min(page + 1, countTotal)} / {countTotal}</span>
+            <button onClick={goNext} aria-label="Next">{nextGlyph}</button>
+            {hasTts ? (
+              <button
+                onClick={toggleNarration}
+                className={`narr-btn ${narrating ? 'narr-on' : ''}`}
+                aria-pressed={narrating}
+                aria-label={listenLabel || 'Listen'}
+                title={listenLabel || 'Listen'}
+              >
+                {narrating ? '⏸' : '🔊'}
+              </button>
+            ) : null}
+            <button
+              className="fs-btn"
+              onClick={() => onFullscreenChange(!fullscreen)}
+              aria-pressed={fullscreen}
+              aria-label={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+              title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+            >
+              {fullscreen ? '⤢' : '⛶'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
