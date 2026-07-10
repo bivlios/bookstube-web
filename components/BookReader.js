@@ -9,38 +9,66 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 // Controlled by the parent (`open`/`onClose`) so the same overlay can be triggered
 // from more than one place on the page (the cover image as well as the CTA button).
 //
-// RTL (he/ar): StPageFlip has no native RTL mode, so we reverse the page array before
-// handing it to the engine — logical page 0 becomes the rightmost page and the book
+// Page model — a `slides` array (logical, LTR reading order) built from the source
+// images: [cover, info, ...rest], padded with a blank page when the count is odd so
+// StPageFlip can close on a lone back cover (an odd count leaves the last page paired
+// and un-closable). The info page (title/author/brand) mirrors the old Meteor viewer.
+//
+// RTL (he/ar): StPageFlip has no native RTL mode, so we reverse the slides before
+// handing them to the engine — logical slide 0 becomes the rightmost page and the book
 // opens/flips right-to-left, matching how a Hebrew/Arabic book is actually read. All
-// page numbers exposed to the reader (the counter, keyboard, buttons) stay in the
-// natural 1..n logical order; the reversal is an internal detail. `toLogical()` converts
-// the engine's internal index back to a logical page, and `startPageIndex` opens the
-// book on logical page 0. (Technique ported from the `react-pageflip-rtl` fork; kept
-// inline to avoid depending on an unmaintained single-author package.)
-export default function BookReader({ open, onClose, pages, audio, pageWidth, pageHeight, rtl, label, listenLabel }) {
+// page numbers exposed to the reader stay in the natural 1..n logical order; the
+// reversal is an internal detail. `toLogical()` converts the engine's internal index
+// back to a logical slide, and `startPageIndex` opens the book on logical slide 0.
+export default function BookReader({
+  open, onClose, pages, audio, pageWidth, pageHeight, rtl,
+  label, listenLabel, title, author, illustrator, byLabel, poweredByLabel, brandLabel, brandHref,
+}) {
   const [Flip, setFlip] = useState(null);
   const bookRef = useRef(null);
-  const [page, setPage] = useState(0); // logical page (0-based, matches `pages`)
+  const [page, setPage] = useState(0); // logical slide (0-based)
 
-  // Narration: `audio` is aligned with `pages` (null = silent page), pre-generated TTS
-  // on S3 (books/tts/{bookId}/{i}.{mp3|wav}) served via the read API's reader.pageAudio.
-  // Mirrors the Meteor viewer's auto-read (book-control-bar.jsx): play the visible
-  // spread's audio in story order, then flip and continue until the book ends.
+  // Narration: each slide carries its own audio (null = silent). Pre-generated TTS on
+  // S3 served via the read API's reader.pageAudio. Mirrors the Meteor viewer's auto-read:
+  // play the visible spread's audio in story order, then flip and continue to book end.
   const [narrating, setNarrating] = useState(false);
   const narratingRef = useRef(false);
   const audioElRef = useRef(null);
   const narrGen = useRef(0); // bump to invalidate in-flight playback chains
 
-  const total = pages?.length || 0;
-  const hasTts = Array.isArray(audio) && audio.some(Boolean);
+  // Logical slides in reading order:
+  //   [0] front cover (image)            — lone right-hand page when closed
+  //   [1] inner front cover (blank)      — left page of the first spread
+  //   [2] info page (title / author)     — right page of the first spread
+  //   [3..] the rest of the story images — paired image|image spreads
+  // Keeping the blank inner cover at index 1 makes the info page fall on the right of
+  // the opening spread and keeps every content page on its intended side. When the count
+  // is odd we splice one filler in *before* the last image (the back cover), so the book
+  // still closes on a lone back cover instead of leaving it paired.
+  const slides = useMemo(() => {
+    const imgs = pages || [];
+    if (!imgs.length) return [];
+    const arr = [{ type: 'image', src: imgs[0], audio: audio?.[0] || null }]; // front cover
+    arr.push({ type: 'blank', audio: null }); // inner front cover
+    arr.push({ type: 'info', audio: null }); // title / info page
+    for (let i = 1; i < imgs.length; i += 1) {
+      arr.push({ type: 'image', src: imgs[i], audio: audio?.[i] || null });
+    }
+    if (arr.length % 2 !== 0) arr.splice(arr.length - 1, 0, { type: 'blank', audio: null });
+    return arr;
+  }, [pages, audio]);
 
-  // Pages handed to StPageFlip: reversed for RTL so the story reads right-to-left.
-  const displayPages = useMemo(
-    () => (rtl ? [...(pages || [])].reverse() : pages || []),
-    [pages, rtl],
+  const total = slides.length; // engine slide count (includes info + blank padding)
+  const countTotal = slides.filter((s) => s.type !== 'blank').length; // shown in "x / y"
+  const hasTts = slides.some((s) => s.audio);
+
+  // Slides handed to StPageFlip: reversed for RTL so the story reads right-to-left.
+  const displaySlides = useMemo(
+    () => (rtl ? [...slides].reverse() : slides),
+    [slides, rtl],
   );
 
-  // Engine internal index → logical (original `pages`) index, and the reverse.
+  // Engine internal index → logical (`slides`) index, and the reverse.
   const toLogical = (i) => (rtl ? total - 1 - i : i);
   const startPageIndex = rtl ? Math.max(total - 1, 0) : 0;
 
@@ -65,7 +93,7 @@ export default function BookReader({ open, onClose, pages, audio, pageWidth, pag
     }
   };
 
-  // Logical pages currently on screen, in story order. In landscape spread mode the
+  // Logical slides currently on screen, in story order. In landscape spread mode the
   // engine shows [ci, ci+1] except when a cover sits alone at either end.
   const visibleLogical = () => {
     const pf = pageFlip();
@@ -81,7 +109,7 @@ export default function BookReader({ open, onClose, pages, audio, pageWidth, pag
   const playSpread = () => {
     const gen = narrGen.current;
     const vis = visibleLogical();
-    const queue = vis.filter((k) => audio?.[k]);
+    const queue = vis.filter((k) => slides[k]?.audio);
     const lastVisible = vis.length ? vis[vis.length - 1] : total - 1;
 
     const advanceOrStop = () => {
@@ -96,7 +124,7 @@ export default function BookReader({ open, onClose, pages, audio, pageWidth, pag
     const playIdx = (qi) => {
       if (gen !== narrGen.current) return;
       if (qi >= queue.length) return advanceOrStop();
-      const a = new Audio(audio[queue[qi]]);
+      const a = new Audio(slides[queue[qi]].audio);
       audioElRef.current = a;
       a.onended = () => playIdx(qi + 1);
       a.onerror = () => playIdx(qi + 1);
@@ -162,7 +190,30 @@ export default function BookReader({ open, onClose, pages, audio, pageWidth, pag
   return (
     <div className="reader-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label={label}>
       <div className="native-reader" onClick={(e) => e.stopPropagation()}>
-        <button className="reader-close" onClick={onClose} aria-label="Close">×</button>
+        {/* Control bar above the book: title/author on one side, navigation + close on the other. */}
+        <div className="reader-bar" dir={rtl ? 'rtl' : 'ltr'}>
+          <div className="reader-bar-meta">
+            {title ? <span className="rb-title">{title}</span> : null}
+            {author ? <span className="rb-author">{byLabel}{author}</span> : null}
+          </div>
+          <div className="reader-bar-controls">
+            <button onClick={goPrev} aria-label="Previous">{prevGlyph}</button>
+            <span className="rb-count" dir="ltr">{Math.min(page + 1, countTotal)} / {countTotal}</span>
+            <button onClick={goNext} aria-label="Next">{nextGlyph}</button>
+            {hasTts ? (
+              <button
+                onClick={toggleNarration}
+                className={`narr-btn ${narrating ? 'narr-on' : ''}`}
+                aria-pressed={narrating}
+                aria-label={listenLabel || 'Listen'}
+                title={listenLabel || 'Listen'}
+              >
+                {narrating ? '⏸' : '🔊'}
+              </button>
+            ) : null}
+            <button className="reader-close-bar" onClick={onClose} aria-label="Close">×</button>
+          </div>
+        </div>
 
         <div className="flip-wrap">
           {Flip ? (
@@ -189,15 +240,27 @@ export default function BookReader({ open, onClose, pages, audio, pageWidth, pag
               }}
               className="flipbook"
             >
-              {displayPages.map((src, i) => (
+              {displaySlides.map((slide, i) => (
                 <div className="flip-page" key={i}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={src}
-                    alt=""
-                    draggable={false}
-                    onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
-                  />
+                  {slide.type === 'info' ? (
+                    <InfoPage
+                      title={title}
+                      author={author}
+                      illustrator={illustrator}
+                      byLabel={byLabel}
+                      poweredByLabel={poweredByLabel}
+                      brandLabel={brandLabel}
+                      brandHref={brandHref}
+                      rtl={rtl}
+                    />
+                  ) : slide.type === 'blank' ? (
+                    <div className="flip-blank">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img className="flip-blank-mark" src="/images/bg-logo-bw.png" alt="" draggable={false} />
+                    </div>
+                  ) : (
+                    <FlipImage src={slide.src} />
+                  )}
                 </div>
               ))}
             </Flip>
@@ -205,23 +268,59 @@ export default function BookReader({ open, onClose, pages, audio, pageWidth, pag
             <div className="reader-loading">…</div>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
 
-        <div className="reader-controls" dir={rtl ? 'rtl' : 'ltr'}>
-          <button onClick={goPrev} aria-label="Previous">{prevGlyph}</button>
-          <span dir="ltr">{Math.min(page + 1, total)} / {total}</span>
-          <button onClick={goNext} aria-label="Next">{nextGlyph}</button>
-          {hasTts ? (
-            <button
-              onClick={toggleNarration}
-              className={`narr-btn ${narrating ? 'narr-on' : ''}`}
-              aria-pressed={narrating}
-              aria-label={listenLabel || 'Listen'}
-              title={listenLabel || 'Listen'}
-            >
-              {narrating ? '⏸' : '🔊'}
-            </button>
-          ) : null}
-        </div>
+// Per-page image with a loading placeholder — the page JPEGs can be large, so without
+// this the sheet shows blank white until the image arrives. The spinner sits under the
+// image and the image fades in once decoded (or hides itself if it fails to load).
+function FlipImage({ src }) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <div className="flip-img-wrap">
+      {!loaded ? <span className="flip-spinner" aria-hidden="true" /> : null}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt=""
+        draggable={false}
+        className="flip-img"
+        style={{ opacity: loaded ? 1 : 0 }}
+        onLoad={() => setLoaded(true)}
+        onError={(e) => { setLoaded(true); e.currentTarget.style.visibility = 'hidden'; }}
+      />
+    </div>
+  );
+}
+
+// Info sheet inserted right after the cover — title, author, the Books Giant logo, and
+// a "powered by Books Giant" credit linking back to the site, echoing the old Meteor
+// viewer's info page.
+function InfoPage({ title, author, illustrator, byLabel, poweredByLabel, brandLabel, brandHref, rtl }) {
+  return (
+    <div className="flip-info" dir={rtl ? 'rtl' : 'ltr'}>
+      <div className="flip-info-inner">
+        {title ? <h2 className="flip-info-title">{title}</h2> : null}
+        {author ? (
+          <p className="flip-info-line">{byLabel}<strong>{author}</strong></p>
+        ) : null}
+        {illustrator ? (
+          <p className="flip-info-line flip-info-illus">{illustrator}</p>
+        ) : null}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="flip-info-logo" src="/images/bg-logo-bw.png" alt="" draggable={false} />
+        {(poweredByLabel || brandLabel) ? (
+          <p className="flip-info-brand">
+            {poweredByLabel}
+            {brandHref ? (
+              <a href={brandHref} target="_blank" rel="noopener">{brandLabel}</a>
+            ) : (
+              <span>{brandLabel}</span>
+            )}
+          </p>
+        ) : null}
       </div>
     </div>
   );

@@ -7,9 +7,8 @@ import LibrarySwitcher from '@/components/LibrarySwitcher';
 import TopicCards from '@/components/TopicCards';
 import LangFilter from '@/components/LangFilter';
 import FeaturedBook from '@/components/FeaturedBook';
-import LibraryGrid from '@/components/LibraryGrid';
+import AnimatedLibrary from '@/components/AnimatedLibrary';
 import ParentValue from '@/components/ParentValue';
-import Pagination from '@/components/Pagination';
 import Cta from '@/components/Cta';
 
 export const revalidate = 300;
@@ -59,19 +58,21 @@ export default async function LibraryHome({ params, searchParams }) {
         <LangFilter t={t} active={bookLang} basePath={`/${lang}`} topic={topic} />
         <TopicCards t={t} basePath={`/${lang}`} active={topic} bookLang={bookLang} />
         <section id="library" className="library">
-          <h2 className="section-title">{heading}</h2>
+          <h2 className="section-title">
+            {heading}
+            {data.total ? <span className="lib-count">{data.total} {t('tagLibrary.books')}</span> : null}
+          </h2>
           {data.books.length ? (
-            <>
-              <LibraryGrid books={data.books} lang={lang} t={t} />
-              <Pagination
-                total={data.total}
-                skip={skip}
-                limit={LIMIT}
-                base={`/${lang}`}
-                topic={topic}
-                bookLang={bookLang}
-              />
-            </>
+            <AnimatedLibrary
+              lang={lang}
+              topic={topic}
+              bookLang={bookLang}
+              initialBooks={data.books}
+              total={data.total}
+              limit={LIMIT}
+              initialSkip={skip}
+              basePath={`/${lang}`}
+            />
           ) : (
             <p className="empty">{t('groups.noBooks')}</p>
           )}
@@ -84,7 +85,6 @@ export default async function LibraryHome({ params, searchParams }) {
   // Home view: prioritize books whose original language matches the UI language.
   // (The API doesn't filter by language, so we split the returned page here.)
   const inLang = data.books.filter((b) => b.orig_language === lang);
-  const others = data.books.filter((b) => b.orig_language !== lang);
   const primary = inLang.length ? inLang : data.books;
 
   // Featured: prefer a same-language book with a summary; fetch its detail for facts.
@@ -105,23 +105,27 @@ export default async function LibraryHome({ params, searchParams }) {
       <TopicCards t={t} basePath={`/${lang}`} />
 
       <section id="library" className="library">
-        <h2 className="section-title">{t('bookstubeHome.shelfPopular')}</h2>
+        <h2 className="section-title">
+          {t('bookstubeHome.shelfPopular')}
+          {data.total ? <span className="lib-count">{data.total} {t('tagLibrary.books')}</span> : null}
+        </h2>
         {primary.length ? (
-          <>
-            <LibraryGrid books={primary} lang={lang} t={t} />
-            <Pagination total={data.total} skip={skip} limit={LIMIT} base={`/${lang}`} />
-          </>
+          <AnimatedLibrary
+            lang={lang}
+            prioritizeLang
+            initialBooks={primary}
+            total={data.total}
+            limit={LIMIT}
+            initialSkip={skip}
+            basePath={`/${lang}`}
+          />
         ) : (
           <p className="empty">{t('groups.noBooks')}</p>
         )}
       </section>
 
-      {inLang.length && others.length ? (
-        <section className="library">
-          <h2 className="section-title">{t('bookstubeHome.otherLanguages')}</h2>
-          <LibraryGrid books={others} lang={lang} t={t} />
-        </section>
-      ) : null}
+      {/* "Other languages" shelf hidden for now — it wasn't clear alongside the
+          client-paginated popular grid. Revisit later. */}
 
       <ParentValue t={t} />
       <Cta t={t} />

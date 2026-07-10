@@ -8,6 +8,9 @@ const DEFAULT_LOCALE = 'he';
 export function middleware(req) {
   const { pathname } = req.nextUrl;
 
+  // API routes are locale-agnostic (used by the client paginator) — never prefix them.
+  if (pathname.startsWith('/api/')) return;
+
   const hasLocale = LOCALES.some(
     (l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`)
   );
@@ -26,5 +29,5 @@ export function middleware(req) {
 
 // Skip Next internals, the sitemap/robots, and anything with a file extension.
 export const config = {
-  matcher: ['/((?!_next|sitemap.xml|robots.txt|.*\\..*).*)'],
+  matcher: ['/((?!api|_next|sitemap.xml|robots.txt|.*\\..*).*)'],
 };

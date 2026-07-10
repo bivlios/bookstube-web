@@ -4,6 +4,7 @@ import { makeT, dir } from '@/lib/i18n';
 import { tubeCta, SITE_URL } from '@/lib/cta';
 import LibraryGrid from '@/components/LibraryGrid';
 import BookDetailTop from '@/components/BookDetailTop';
+import BackButton from '@/components/BackButton';
 import StoryText from '@/components/StoryText';
 
 export const revalidate = 600;
@@ -52,7 +53,7 @@ export default async function BookDetail({ params }) {
     <main dir={dir(lang)} className="detail">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <a href={`/${lang}`} className="back">← {t('bookPage.backToLibrary')}</a>
+      <BackButton lang={lang} label={t('bookPage.backToLibrary')} />
 
       <BookDetailTop
         book={book}

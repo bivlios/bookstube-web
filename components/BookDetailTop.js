@@ -69,6 +69,13 @@ export default function BookDetailTop({ book, lang, bDir, readingMinutes, simila
           rtl={bDir === 'rtl'}
           label={readLabel}
           listenLabel={t('bookPage.listen')}
+          title={book.title}
+          author={book.author?.name}
+          illustrator={book.illustrator?.name}
+          byLabel={t('book.by')}
+          poweredByLabel={t('book.powerdby')}
+          brandLabel={t('book.booksgiant')}
+          brandHref={`https://booksgiant.com/${lang}`}
         />
       ) : (
         <ReaderButton

@@ -32,6 +32,12 @@ export default function ReaderTest() {
         rtl
         label="Reader test"
         listenLabel="הקראת הסיפור"
+        title="למה הפנדות צמחוניות?"
+        author="ילדים כתבו"
+        byLabel=" מאת "
+        poweredByLabel="נוצר ב "
+        brandLabel="ענק של ספרים"
+        brandHref="https://booksgiant.com/he"
       />
     </main>
   );

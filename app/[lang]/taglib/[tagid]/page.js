@@ -5,8 +5,7 @@ import { libNameById } from '@/lib/libraries';
 import { OG_IMAGE } from '@/lib/cta';
 import LibrarySwitcher from '@/components/LibrarySwitcher';
 import TopicChips from '@/components/TopicChips';
-import LibraryGrid from '@/components/LibraryGrid';
-import Pagination from '@/components/Pagination';
+import AnimatedLibrary from '@/components/AnimatedLibrary';
 import Cta from '@/components/Cta';
 
 export const revalidate = 300;
@@ -48,12 +47,21 @@ export default async function TagLibrary({ params, searchParams }) {
       <LibrarySwitcher lang={lang} activeId={tagid} />
       <TopicChips t={t} active={topic} basePath={base} />
       <section id="library" className="library">
-        <h1 className="section-title">{heading}</h1>
+        <h1 className="section-title">
+          {heading}
+          {data.total ? <span className="lib-count">{data.total} {t('tagLibrary.books')}</span> : null}
+        </h1>
         {data.books.length ? (
-          <>
-            <LibraryGrid books={data.books} lang={lang} t={t} />
-            <Pagination total={data.total} skip={skip} limit={LIMIT} base={base} topic={topic} />
-          </>
+          <AnimatedLibrary
+            lang={lang}
+            lib={tagid}
+            topic={topic}
+            initialBooks={data.books}
+            total={data.total}
+            limit={LIMIT}
+            initialSkip={skip}
+            basePath={base}
+          />
         ) : (
           <p className="empty">{t('groups.noBooks')}</p>
         )}
