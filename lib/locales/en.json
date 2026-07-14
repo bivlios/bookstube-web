@@ -270,6 +270,7 @@
     "noInternet": "No internet connection, your work will not be saved.",
     "toMuch": "You passed the allowed users.",
     "noBooks": "No books yet",
+    "selectLibrary": "Select library:",
     "createAbook": "My First Book",
     "readText": "Read Text",
     "filter": "Filter",

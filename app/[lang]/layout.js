@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { LOCALES, DEFAULT_LOCALE, dir, makeT } from '@/lib/i18n';
 import { SITE_URL } from '@/lib/cta';
 import Header from '@/components/Header';
+import HeaderHeightSync from '@/components/HeaderHeightSync';
 import Analytics from '@/components/Analytics';
 import GARouteTracker from '@/components/GARouteTracker';
 
@@ -31,6 +32,7 @@ export default function RootLayout({ children, params }) {
           <GARouteTracker />
         </Suspense>
         <Header lang={lang} t={t} />
+        <HeaderHeightSync />
         {children}
         <footer className="site-footer">© {new Date().getFullYear()} BooksTube · booksgiant.com</footer>
       </body>

@@ -1,6 +1,7 @@
 import { getLibrary, getBook } from '@/lib/api';
 import { makeT, dir, LOCALES } from '@/lib/i18n';
 import { topicKey } from '@/lib/topics';
+import { libNameById } from '@/lib/libraries';
 import { OG_IMAGE } from '@/lib/cta';
 import Hero from '@/components/Hero';
 import LibrarySwitcher from '@/components/LibrarySwitcher';
@@ -10,9 +11,10 @@ import FeaturedBook from '@/components/FeaturedBook';
 import AnimatedLibrary from '@/components/AnimatedLibrary';
 import ParentValue from '@/components/ParentValue';
 import Cta from '@/components/Cta';
+import MakeBookBanner from '@/components/MakeBookBanner';
 
 export const revalidate = 300;
-const LIMIT = 20; // two full shelves of 10 per page (see BookShelf / PER_SHELF)
+const LIMIT = 60; // up to six shelves of 10 per page (see BookShelf / PER_SHELF)
 
 export function generateStaticParams() {
   return LOCALES.map((lang) => ({ lang }));
@@ -54,9 +56,10 @@ export default async function LibraryHome({ params, searchParams }) {
       : t(`bookstubeHome.booksIn_${bookLang}`);
     return (
       <main dir={dir(lang)}>
-        <LibrarySwitcher lang={lang} activeId="bookstube" />
+        <LibrarySwitcher lang={lang} activeId="bookstube" t={t} />
         <LangFilter t={t} active={bookLang} basePath={`/${lang}`} topic={topic} />
         <TopicCards t={t} basePath={`/${lang}`} active={topic} bookLang={bookLang} />
+        <MakeBookBanner lang={lang} t={t} />
         <section id="library" className="library">
           <h2 className="section-title">
             {heading}
@@ -82,14 +85,19 @@ export default async function LibraryHome({ params, searchParams }) {
     );
   }
 
-  // Home view: prioritize books whose original language matches the UI language.
-  // (The API doesn't filter by language, so we split the returned page here.)
-  const inLang = data.books.filter((b) => b.orig_language === lang);
-  const primary = inLang.length ? inLang : data.books;
+  // Home view: prioritize books whose original language matches the UI language. This is
+  // a dedicated server-side filtered fetch (not a client-side split of the mixed `data`
+  // page above) so a full LIMIT of same-language books fills the grid, instead of whatever
+  // fraction of one mixed page happened to match.
+  const langData = await getLibrary({ lang, bookLang: lang, skip, limit: LIMIT }).catch(() => null);
+  // Require at least a full shelf's worth before preferring the language-filtered set —
+  // a couple of stray matches would otherwise starve the grid down to a near-empty page.
+  const hasLangBooks = (langData?.books?.length || 0) >= 10;
+  const primary = hasLangBooks ? langData.books : data.books;
+  const primaryTotal = hasLangBooks ? langData.total : data.total;
 
   // Featured: prefer a same-language book with a summary; fetch its detail for facts.
-  const pick =
-    inLang.find((b) => b.summery) || data.books.find((b) => b.summery) || data.books[0];
+  const pick = primary.find((b) => b.summery) || data.books.find((b) => b.summery) || data.books[0];
   const featured = pick
     ? await getBook(pick.slug || pick.bookId, { seo: 1 }).catch(() => null)
     : null;
@@ -98,23 +106,24 @@ export default async function LibraryHome({ params, searchParams }) {
 
   return (
     <main dir={dir(lang)}>
-      <LibrarySwitcher lang={lang} activeId="bookstube" />
+      <LibrarySwitcher lang={lang} activeId="bookstube" t={t} />
       <Hero t={t} covers={covers} />
       <LangFilter t={t} basePath={`/${lang}`} />
       {featured ? <FeaturedBook data={featured} lang={lang} t={t} /> : null}
       <TopicCards t={t} basePath={`/${lang}`} />
+      <MakeBookBanner lang={lang} t={t} />
 
       <section id="library" className="library">
         <h2 className="section-title">
-          {t('bookstubeHome.shelfPopular')}
-          {data.total ? <span className="lib-count">{data.total} {t('tagLibrary.books')}</span> : null}
+          {libNameById('bookstube', lang)}
+          {primaryTotal ? <span className="lib-count">{primaryTotal} {t('tagLibrary.books')}</span> : null}
         </h2>
         {primary.length ? (
           <AnimatedLibrary
             lang={lang}
             prioritizeLang
             initialBooks={primary}
-            total={data.total}
+            total={primaryTotal}
             limit={LIMIT}
             initialSkip={skip}
             basePath={`/${lang}`}

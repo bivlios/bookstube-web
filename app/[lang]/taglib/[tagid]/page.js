@@ -7,9 +7,10 @@ import LibrarySwitcher from '@/components/LibrarySwitcher';
 import TopicChips from '@/components/TopicChips';
 import AnimatedLibrary from '@/components/AnimatedLibrary';
 import Cta from '@/components/Cta';
+import MakeBookBanner from '@/components/MakeBookBanner';
 
 export const revalidate = 300;
-const LIMIT = 20; // two full shelves of 10 per page (see BookShelf / PER_SHELF)
+const LIMIT = 60; // up to six shelves of 10 per page (see BookShelf / PER_SHELF)
 
 export async function generateMetadata({ params }) {
   const t = makeT(params.lang);
@@ -53,8 +54,9 @@ export default async function TagLibrary({ params, searchParams }) {
 
   return (
     <main dir={dir(lang)}>
-      <LibrarySwitcher lang={lang} activeId={libId} />
+      <LibrarySwitcher lang={lang} activeId={libId} t={t} />
       <TopicChips t={t} active={topic} basePath={base} />
+      <MakeBookBanner lang={lang} t={t} />
       <section id="library" className="library">
         <h1 className="section-title">
           {heading}

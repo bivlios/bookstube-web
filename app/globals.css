@@ -8,6 +8,7 @@
   --card-bg: #fff;
   --line: #d9def0;
   --shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  --header-h: 60px;
 }
 
 * { box-sizing: border-box; }
@@ -28,31 +29,37 @@ a { color: inherit; text-decoration: none; }
 /* ── Header ── */
 .site-header {
   position: sticky; top: 0; z-index: 100;
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 12px; padding: 12px 20px;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+  gap: 8px 12px; padding: 12px 20px;
   background: linear-gradient(135deg, var(--purple-2) 0%, var(--purple) 100%);
   color: #fff;
 }
-.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; }
-.brand-logo { height: 36px; width: auto; display: block; }
-.header-actions { display: flex; align-items: center; gap: 10px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; white-space: nowrap; }
+.brand-logo { height: 36px; width: auto; display: block; flex: 0 0 auto; }
+.header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
 .lang-select {
   border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.14);
-  color: #fff; border-radius: 999px; padding: 6px 10px; font-size: 14px;
+  color: #fff; border-radius: 999px; padding: 6px 10px; font-size: 14px; flex: 0 0 auto;
 }
 .lang-select option { color: #333; }
+.btn-header { flex: 1 1 auto; min-width: 0; text-align: center; }
 
 /* ── Library switcher ── */
 .lib-switch {
+  position: sticky; top: var(--header-h, 60px); z-index: 99;
   background: #3a2c63;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 .lib-switch-inner {
   max-width: 1200px; margin: 0 auto; padding: 8px 16px;
-  display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto;
+  display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; overflow-x: auto;
   scrollbar-width: none;
 }
 .lib-switch-inner::-webkit-scrollbar { display: none; }
+.lib-switch-label {
+  flex: 0 0 auto; font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+}
 .lib-pill {
   flex: 0 0 auto; white-space: nowrap;
   font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 999px;
@@ -91,6 +98,7 @@ a { color: inherit; text-decoration: none; }
 .hero p { font-size: clamp(15px, 2.5vw, 18px); color: var(--ink-soft); max-width: 620px; margin: 16px 0 0; line-height: 1.55; }
 .hero-trust { font-size: 14px !important; font-weight: 600; color: var(--purple) !important; margin-top: 12px !important; }
 .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+.hero-illustration { flex: 0 1 auto; min-width: 0; width: 100%; max-width: 420px; height: auto; border-radius: 16px; }
 
 /* Lightweight cover collage — placeholder visual built from real covers. */
 .hero-visual {
@@ -124,6 +132,27 @@ a { color: inherit; text-decoration: none; }
 }
 .chip:hover { background: #eef1ff; border-color: #b9a7e6; }
 .chip-active { color: #fff; background: var(--purple); border-color: var(--purple); }
+
+/* ── Make-a-book banner ── */
+.make-book-banner {
+  display: flex; align-items: center; gap: 20px; max-width: 1200px;
+  margin: 24px auto 0; padding: 14px 24px; text-decoration: none;
+  background: linear-gradient(135deg, #eef1ff 0%, #f6f0ff 100%);
+  border: 1px solid #e3e6f5; border-radius: 16px; box-shadow: var(--shadow);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.make-book-banner:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(45, 47, 107, .18); }
+.make-book-banner-img { width: 90px; height: auto; flex: 0 0 auto; border-radius: 8px; }
+.make-book-banner-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.make-book-banner-text strong { font-size: clamp(15px, 2.2vw, 19px); font-weight: 800; color: var(--ink); }
+.make-book-banner-text span:last-child { font-size: clamp(12px, 1.8vw, 14px); color: var(--ink-soft); line-height: 1.4; }
+.make-book-banner-btn { flex: 0 0 auto; white-space: nowrap; }
+@media (max-width: 640px) {
+  .make-book-banner { flex-wrap: wrap; text-align: center; justify-content: center; }
+  .make-book-banner-text { flex: 1 1 100%; order: 2; align-items: center; }
+  .make-book-banner-img { order: 1; }
+  .make-book-banner-btn { order: 3; flex: 1 1 100%; }
+}
 
 /* ── Library grid ── */
 .library { max-width: 1200px; margin: 0 auto; padding: 24px 16px 8px; }
@@ -214,6 +243,7 @@ a.pager-btn:active { transform: scale(.96); }
 .convert h2 { font-size: clamp(20px, 3.5vw, 26px); font-weight: 800; margin: 0; }
 .convert p { max-width: 680px; margin: 12px auto 0; color: var(--ink-soft); line-height: 1.55; }
 .convert .btn { margin-top: 24px; }
+.books-tube-logo { max-width: min(100%, 640px); width: 100%; height: auto; border-radius: 12px; box-shadow: var(--shadow); }
 
 /* ── Book detail ── */
 .detail { max-width: 960px; margin: 0 auto; padding: 20px 16px 48px; }

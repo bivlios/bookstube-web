@@ -261,6 +261,7 @@
     "noInternet": "إذا لم يكن هناك اتصال بالإنترنت، فلن يتم حفظ عملك.",
     "toMuch": "You passed the allowed users.",
     "noBooks": "لا توجد كتب بعد",
+    "selectLibrary": "اختر مكتبة:",
     "createAbook": "كتابي الأول",
     "readText": "قراءة النص",
     "ai-edu-q": "كتب المحتوى مع الأسئلة",

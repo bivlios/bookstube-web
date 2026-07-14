@@ -19,7 +19,12 @@ export default function Hero({ t, covers = [] }) {
         </div>
       </div>
 
-        <img src="/images/bookstube-hero.png" alt="hero" loading="lazy" />
+        <img
+          src="/images/bookstube-hero.png"
+          alt="hero"
+          loading="lazy"
+          className="hero-illustration"
+        />
 
         {/*tiles.length ? (
         <div className="hero-visual_" aria-hidden="true">

@@ -247,6 +247,7 @@
     "loading": "Lädt...",
     "noBooks": "Noch keine Bücher vorhanden",
     "noInternet": "Keine Internetverbindung, Ihre Arbeit wird nicht gespeichert.",
+    "selectLibrary": "Bibliothek auswählen:",
     "or": "oder",
     "readText": "Text vorlesen",
     "reading": "Lesen, bitte warten...",
