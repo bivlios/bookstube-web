@@ -22,8 +22,11 @@ export default function BookDetailTop({ book, lang, bDir, readingMinutes, simila
   const openReader = () => (usesNative ? setFullscreen(true) : setOpen(true));
 
   // Native share sheet on mobile; copy-link fallback (with brief confirmation) elsewhere.
+  // decodeURI: Hebrew/Arabic slugs come percent-encoded from location.href — share the
+  // readable form so the link doesn't look like garbage in a WhatsApp message.
   const share = async () => {
-    const url = window.location.href;
+    let url = window.location.href;
+    try { url = decodeURI(url); } catch (e) { /* malformed — share encoded form */ }
     if (navigator.share) {
       try { await navigator.share({ title: book.title, url }); } catch (e) { /* user cancelled */ }
       return;
