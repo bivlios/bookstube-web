@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
-import { getBook } from '@/lib/api';
+import { getBook, viewPingUrl } from '@/lib/api';
+import ViewPing from '@/components/ViewPing';
 import { makeT, dir } from '@/lib/i18n';
 import { tubeCta, SITE_URL } from '@/lib/cta';
 import LibraryGrid from '@/components/LibraryGrid';
@@ -52,6 +53,8 @@ export default async function BookDetail({ params }) {
   return (
     <main dir={dir(lang)} className="detail">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+
+      <ViewPing url={viewPingUrl(book.bookId)} bookId={book.bookId} />
 
       <BackButton lang={lang} label={t('bookPage.backToLibrary')} />
 
