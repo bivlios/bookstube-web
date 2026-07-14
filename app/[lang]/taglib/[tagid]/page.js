@@ -1,7 +1,7 @@
 import { getLibrary } from '@/lib/api';
 import { makeT, dir } from '@/lib/i18n';
 import { topicKey } from '@/lib/topics';
-import { libBySlug, libName, libSlug } from '@/lib/libraries';
+import { libBySlug, libName, libSlug, libIntro } from '@/lib/libraries';
 import { OG_IMAGE } from '@/lib/cta';
 import LibrarySwitcher from '@/components/LibrarySwitcher';
 import TopicChips from '@/components/TopicChips';
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }) {
   const data = await getLibrary({ lib: libId, limit: 1 }).catch(() => null);
   const libTitle = (lib && libName(lib, params.lang)) || data?.library?.title;
   const title = libTitle ? `${libTitle} — BooksTube` : t('meta.bookstubeTitle');
-  const description = t('meta.bookstubeDesc');
+  const description = (lib && libIntro(lib, params.lang)) || t('meta.bookstubeDesc');
   return {
     title,
     description,
@@ -55,13 +55,16 @@ export default async function TagLibrary({ params, searchParams }) {
   return (
     <main dir={dir(lang)}>
       <LibrarySwitcher lang={lang} activeId={libId} t={t} />
-      <TopicChips t={t} active={topic} basePath={base} />
+      <TopicChips t={t} active={topic} basePath={base} availableTags={data.availableTags} />
       <MakeBookBanner lang={lang} t={t} />
       <section id="library" className="library">
         <h1 className="section-title">
           {heading}
           {data.total ? <span className="lib-count">{data.total} {t('tagLibrary.books')}</span> : null}
         </h1>
+        {!topic && lib && libIntro(lib, lang) ? (
+          <p className="topic-intro">{libIntro(lib, lang)}</p>
+        ) : null}
         {data.books.length ? (
           <AnimatedLibrary
             lang={lang}

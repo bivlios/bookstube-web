@@ -1,4 +1,13 @@
 {
+  "topicIntro": {
+    "science": "Wissenschaftsbücher für Kinder, von Kindern geschrieben — neugierige Geschichten darüber, wie die Welt funktioniert.",
+    "history": "Geschichtsgeschichten für Kinder — Reisen in andere Zeiten und an andere Orte, erzählt in Kinderworten.",
+    "space": "Weltraumbücher für Kinder — Raketen, Planeten und Sterne in Geschichten junger Autorinnen und Autoren.",
+    "technology": "Technikgeschichten für neugierige Kinder — Roboter, Erfindungen und wie Dinge gebaut werden.",
+    "nature": "Naturbücher für Kinder — Tiere, Pflanzen und die Natur, mit Kinderaugen gesehen.",
+    "social-story": "Soziale Geschichten helfen Kindern, sich auf Alltagssituationen vorzubereiten — Arztbesuch, Schulstart, Freundschaften. Kostenlose illustrierte soziale Geschichten zum Online-Lesen, mit Vorlesefunktion.",
+    "emotions": "Geschichten über Gefühle — Wut, Freude, Angst und Freundschaft — die Kindern helfen, Emotionen zu verstehen."
+  },
   "bookstubeHome": {
     "heroTitle": "Kostenlose illustrierte Bücher für neugierige Kinder",
     "heroSubtitle": "Entdeckt kurze, schöne Bücher über Wissenschaft, Geschichte, Natur, Gefühle, Technik und die Welt — zum gemeinsamen Lesen.",

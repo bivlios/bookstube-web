@@ -1,6 +1,6 @@
 import { getLibrary, getBook } from '@/lib/api';
 import { makeT, dir, LOCALES } from '@/lib/i18n';
-import { topicKey } from '@/lib/topics';
+import { topicKey, topicByTag } from '@/lib/topics';
 import { libNameById } from '@/lib/libraries';
 import { OG_IMAGE } from '@/lib/cta';
 import Hero from '@/components/Hero';
@@ -20,15 +20,17 @@ export function generateStaticParams() {
   return LOCALES.map((lang) => ({ lang }));
 }
 
-export async function generateMetadata({ params }) {
+export async function generateMetadata({ params, searchParams }) {
   const t = makeT(params.lang);
   const title = t('meta.bookstubeTitle');
   const description = t('meta.bookstubeDesc');
+  // ?topic= filtered views duplicate the topic landing pages — canonicalize there.
+  const topic = topicByTag(searchParams?.topic || '');
   return {
     title,
     description,
     alternates: {
-      canonical: `/${params.lang}`,
+      canonical: topic ? `/${params.lang}/topics/${topic.tag}` : `/${params.lang}`,
       languages: Object.fromEntries(LOCALES.map((l) => [l, `/${l}`])),
     },
     openGraph: { title, description, url: `/${params.lang}`, type: 'website', images: [OG_IMAGE] },
@@ -57,8 +59,11 @@ export default async function LibraryHome({ params, searchParams }) {
     return (
       <main dir={dir(lang)}>
         <LibrarySwitcher lang={lang} activeId="bookstube" t={t} />
-        <LangFilter t={t} active={bookLang} basePath={`/${lang}`} topic={topic} />
-        <TopicCards t={t} basePath={`/${lang}`} active={topic} bookLang={bookLang} />
+        {/* While a language filter is active the facet reflects the filtered set,
+            so only pass it on the unfiltered view — pills must not vanish mid-use. */}
+        <LangFilter t={t} active={bookLang} basePath={`/${lang}`} topic={topic}
+                    availableLangs={bookLang ? undefined : data.availableLangs} />
+        <TopicCards t={t} lang={lang} active={topic} availableTags={data.availableTags} />
         <MakeBookBanner lang={lang} t={t} />
         <section id="library" className="library">
           <h2 className="section-title">
@@ -108,9 +113,9 @@ export default async function LibraryHome({ params, searchParams }) {
     <main dir={dir(lang)}>
       <LibrarySwitcher lang={lang} activeId="bookstube" t={t} />
       <Hero t={t} covers={covers} />
-      <LangFilter t={t} basePath={`/${lang}`} />
+      <LangFilter t={t} basePath={`/${lang}`} availableLangs={data.availableLangs} />
       {featured ? <FeaturedBook data={featured} lang={lang} t={t} /> : null}
-      <TopicCards t={t} basePath={`/${lang}`} />
+      <TopicCards t={t} lang={lang} availableTags={data.availableTags} />
       <MakeBookBanner lang={lang} t={t} />
 
       <section id="library" className="library">

@@ -1,4 +1,13 @@
 {
+  "topicIntro": {
+    "science": "Science books for kids, written by kids — curious stories about how the world works, from experiments to everyday wonders.",
+    "history": "History stories for children — journeys to other times and places, told in kids' own words.",
+    "space": "Space books for kids — rockets, planets and stars in stories written and illustrated by young authors.",
+    "technology": "Technology stories for curious kids — robots, inventions and how things are built.",
+    "nature": "Nature books for children — animals, plants and the outdoors, seen through kids' eyes.",
+    "social-story": "Social stories help children prepare for everyday situations — visiting the doctor, starting school, making friends. Free illustrated social stories to read online, with audio narration.",
+    "emotions": "Stories about feelings — anger, joy, fear and friendship — that help kids name and manage emotions."
+  },
   "bookstubeHome": {
     "heroTitle": "Free illustrated books for curious kids",
     "heroSubtitle": "Discover short, beautiful books about science, history, nature, emotions, technology, and the world — made for reading together.",

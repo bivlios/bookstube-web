@@ -48,6 +48,8 @@ export default async function BookDetail({ params }) {
     ...(book.summery ? { description: book.summery } : {}),
     url: `${SITE_URL}/${lang}/books/${encodeURIComponent(book.slug || book.bookId)}`,
     ...(book.author?.name ? { author: { '@type': 'Person', name: book.author.name } } : {}),
+    ...(book.age ? { typicalAgeRange: `${book.age.min}-${book.age.max}` } : {}),
+    ...(book.reader?.tts ? { accessibilityFeature: ['readAloud'] } : {}),
   };
 
   return (
