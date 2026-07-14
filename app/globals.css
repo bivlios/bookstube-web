@@ -37,6 +37,23 @@ a { color: inherit; text-decoration: none; }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; white-space: nowrap; }
 .brand-logo { height: 36px; width: auto; display: block; flex: 0 0 auto; }
 .header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.header-search {
+  display: flex; align-items: center; flex: 1 1 200px; max-width: 420px;
+  background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px; padding-inline: 14px 4px; height: 36px;
+  transition: background .12s ease, border-color .12s ease;
+}
+.header-search:focus-within { background: rgba(255, 255, 255, 0.22); border-color: rgba(255, 255, 255, 0.55); }
+.header-search-input {
+  flex: 1; min-width: 0; border: 0; background: none; color: #fff; font-size: 14px; outline: none;
+}
+.header-search-input::placeholder { color: rgba(255, 255, 255, 0.7); }
+.header-search-input::-webkit-search-cancel-button { filter: invert(1); }
+.header-search-btn {
+  flex: 0 0 auto; display: grid; place-items: center; width: 28px; height: 28px;
+  border: 0; border-radius: 50%; background: none; color: rgba(255, 255, 255, 0.85); cursor: pointer;
+}
+.header-search-btn:hover { background: rgba(255, 255, 255, 0.18); color: #fff; }
 .lang-select {
   border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.14);
   color: #fff; border-radius: 999px; padding: 6px 10px; font-size: 14px; flex: 0 0 auto;
@@ -85,6 +102,7 @@ a { color: inherit; text-decoration: none; }
 .btn:hover { transform: translateY(-1px); }
 .btn-primary { color: #fff; background: linear-gradient(135deg, var(--purple-2), var(--purple)); box-shadow: 0 6px 18px rgba(102, 126, 234, .4); }
 .btn-outline { color: #5a4192; background: #fff; border: 1px solid #b9a7e6; }
+.btn-share { display: inline-flex; align-items: center; gap: 6px; }
 .btn-cta, .btn-read { color: #fff; background: var(--orange); box-shadow: 0 6px 18px rgba(249, 115, 22, .4); }
 .btn-header { padding: 8px 16px; font-size: 13px; color: #fff; background: var(--orange); }
 
@@ -160,11 +178,17 @@ a { color: inherit; text-decoration: none; }
 .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
 .empty { text-align: center; color: #999; padding: 48px 0; font-size: 18px; }
 
+/* Flex column chain (card → link → title/author) so the blue info strip always
+   reaches the card bottom: flex rows (.grid, .shelf-row) stretch every card to the
+   tallest sibling, and without this the extra height showed as a white gap under
+   the strip. The title reserves two lines so cards stay equal-height to begin with. */
 .card {
   width: 180px; background: var(--card-bg); border-radius: 12px; overflow: hidden;
   box-shadow: var(--shadow); transition: transform .2s ease, box-shadow .2s ease;
+  display: flex; flex-direction: column;
 }
 .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0, 0, 0, .18); }
+.card-link { display: flex; flex-direction: column; flex: 1; }
 .card-cover { position: relative; display: block; aspect-ratio: 3 / 4; background: #f0f0f0; overflow: hidden; }
 .card-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .lang-badge {
@@ -172,7 +196,18 @@ a { color: inherit; text-decoration: none; }
   font-size: 11px; font-weight: 700; letter-spacing: .5px; color: #fff;
   background: rgba(45, 47, 107, .82); border-radius: 6px; padding: 2px 7px;
 }
-.card-title { font-size: 13px; font-weight: 600; line-height: 1.3; color: #fff; margin: 0; padding: 10px 12px 2px; background: #385fc9; }
+.views-badge {
+  position: absolute; top: 8px; inset-inline-end: 8px;
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 11px; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums;
+  background: rgba(45, 47, 107, .82); border-radius: 6px; padding: 2px 7px;
+}
+.card-title {
+  font-size: 13px; font-weight: 600; line-height: 1.3; color: #fff; margin: 0;
+  padding: 10px 12px 2px; background: #385fc9;
+  flex-grow: 1; min-height: calc(2 * 1.3em + 12px); /* two lines + own padding */
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
 .card-author { font-size: 11px; color: rgba(255, 255, 255, .75); margin: 0; padding: 0 12px 10px; background: #385fc9; }
 
 /* ── Bookshelves ── */

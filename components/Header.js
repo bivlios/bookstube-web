@@ -1,4 +1,5 @@
 import LangSwitcher from './LangSwitcher';
+import HeaderSearch from './HeaderSearch';
 import { tubeCta } from '@/lib/cta';
 
 export default function Header({ lang, t }) {
@@ -9,6 +10,7 @@ export default function Header({ lang, t }) {
         <img src="/images/bookstube-logo.png" alt={t('ui.booksgiant')} className="brand-logo" />
         <span className="brand-name">{t('ui.booksgiant')}</span>
       </a>
+      <HeaderSearch lang={lang} placeholder={t('tagLibrary.searchPlaceholder')} />
       <div className="header-actions">
         <LangSwitcher lang={lang} />
         <a

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { makeT } from '@/lib/i18n';
 import BookReader from './BookReader';
 import ReaderButton from './ReaderButton';
+import CoverImage from './CoverImage';
 
 // Cover + facts + CTAs for the book detail page. Holds the reader's open state so
 // clicking the cover image opens the same overlay as the "Read illustrated book" CTA.
@@ -16,8 +17,23 @@ export default function BookDetailTop({ book, lang, bDir, readingMinutes, simila
   // keep the button→modal flow via `open`.
   const [fullscreen, setFullscreen] = useState(false);
   const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const readLabel = t('bookPage.readNow');
   const openReader = () => (usesNative ? setFullscreen(true) : setOpen(true));
+
+  // Native share sheet on mobile; copy-link fallback (with brief confirmation) elsewhere.
+  const share = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try { await navigator.share({ title: book.title, url }); } catch (e) { /* user cancelled */ }
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (e) { window.prompt(t('bookPage.share'), url); }
+  };
 
   return (
     <>
@@ -28,8 +44,14 @@ export default function BookDetailTop({ book, lang, bDir, readingMinutes, simila
           onClick={openReader}
           aria-label={readLabel}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={book.coverUrl} alt={book.title} className="detail-cover" />
+          <CoverImage
+            src={book.coverUrl}
+            fallbacks={book.reader?.published ? [book.reader.pageImages?.[0]] : []}
+            title={book.title}
+            author={book.author?.name}
+            seed={book.bookId}
+            className="detail-cover"
+          />
           <span className="cover-play-hint" aria-hidden="true">▶</span>
         </button>
 
@@ -60,6 +82,12 @@ export default function BookDetailTop({ book, lang, bDir, readingMinutes, simila
             <a className="btn btn-outline" href={similarHref} target="_blank" rel="noopener">
               {t('bookPage.createSimilar')}
             </a>
+            <button type="button" className="btn btn-outline btn-share" onClick={share}>
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true">
+                <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 1 0-3-3c0 .24.04.47.09.7L8.04 9.81A2.99 2.99 0 0 0 3 12a3 3 0 0 0 5.04 2.19l7.12 4.16c-.05.21-.08.43-.08.65a2.92 2.92 0 1 0 2.92-2.92z" />
+              </svg>
+              {copied ? t('bookPage.linkCopied') : t('bookPage.share')}
+            </button>
           </div>
         </div>
       </div>
