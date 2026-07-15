@@ -21,10 +21,10 @@ body {
   /* Same poster palette as the hero (navy #0b0f26, blue-violet #2e387f, magenta-purple
      #9767a9) at the lighter strength the hero itself used before it went dark. */
   background:
-    radial-gradient(70% 60vh at 8% 0, rgba(151, 103, 169, .38), transparent 62%),
-    radial-gradient(65% 55vh at 96% 4vh, rgba(46, 56, 127, .32), transparent 68%),
+    radial-gradient(70% 60vh at 8% 0, rgba(151, 103, 169, .70), transparent 80%),
+    radial-gradient(65% 55vh at 96% 4vh, rgba(46, 56, 127, .70), transparent 80%),
     radial-gradient(80% 60vh at 50% 100%, rgba(11, 15, 38, .22), transparent 72%),
-    linear-gradient(135deg, #f6effc 0%, #eef1ff 50%, #e4ddf7 100%);
+    linear-gradient(135deg, #f6effc 0%, #eef1ff 50%, #e4ddf7 80%);
   background-repeat: no-repeat;
   min-height: 100vh;
 }
@@ -42,7 +42,7 @@ a { color: inherit; text-decoration: none; }
   color: #fff;
 }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; white-space: nowrap; }
-.brand-logo { height: 36px; width: auto; display: block; flex: 0 0 auto; }
+.brand-logo { height: 60px; width: auto; display: block; flex: 0 0 auto; }
 .header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
 .header-search {
   display: flex; align-items: center; flex: 1 1 200px; max-width: 420px;
@@ -121,11 +121,11 @@ a { color: inherit; text-decoration: none; }
      magenta-purple #9767a9), pushed dark/saturated — this section carries the
      strongest version, text flips to light to stay readable on it. */
   background:
-    radial-gradient(60% 85% at 12% 8%, rgba(151, 103, 169, .8), transparent 62%),
-    radial-gradient(55% 75% at 95% 4%, rgba(46, 56, 127, .75), transparent 68%),
-    radial-gradient(80% 70% at 45% 115%, rgba(11, 15, 38, .7), transparent 72%),
+    radial-gradient(60% 85% at 40% 40%, rgba(151, 103, 169, .8), transparent 62%),
+    radial-gradient(55% 75% at 95% 40%, rgba(46, 56, 127, .75), transparent 90%),
+    radial-gradient(20% 30% at 45% 115%, rgba(11, 15, 38, .7), transparent 90%),
     linear-gradient(135deg, #4a3878 0%, #362a63 50%, #211a42 100%);
-  border-radius: 20px;
+  border-radius: 0 0 20px 20px; box-shadow: 0 14px 34px rgba(46, 20, 74, .35);
 }
 .hero .btn-outline { color: #4a3878; }
 .hero-text { flex: 1 1 440px; min-width: 280px; }
@@ -149,7 +149,7 @@ a { color: inherit; text-decoration: none; }
 .hero-illustration {
   position: relative; z-index: 1; display: block; width: 100%; height: auto;
   aspect-ratio: 16 / 9; object-fit: cover; border-radius: 16px; background: #0b0f26;
-  box-shadow: 0 14px 34px rgba(46, 20, 74, .35);
+  box-shadow: 0 0px 34px rgba(250, 200, 250, .35);
 }
 
 /* Lightweight cover collage — placeholder visual built from real covers. */
@@ -207,7 +207,11 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ── Library grid ── */
-.library { max-width: 1200px; margin: 0 auto; padding: 24px 16px 8px; }
+.library {
+  max-width: 1200px; margin: 20px auto; padding: 24px 16px 8px;border-radius: 20px;box-shadow: rgba(0,0,0,0.7) 3px 3px 10px;
+    /*border: 10px solid #e3e6f5; */
+  background: rgba(255, 255, 255, .82) url(/images/tubes-back.jpg) center / 100% 100% no-repeat;
+}
 .section-title { text-align: center; font-size: clamp(19px, 3vw, 24px); font-weight: 800; margin: 16px 0; }
 /* Intro paragraph on topic landing / collection pages — SEO copy under the heading. */
 .topic-intro { max-width: 680px; margin: -4px auto 20px; text-align: center; color: #4a4d75; font-size: 15px; line-height: 1.55; }
@@ -253,10 +257,10 @@ a { color: inherit; text-decoration: none; }
    against the page's gradient background (body). Books group into shelves of 10. */
 .shelves { max-width: 1100px; margin: 0 auto; }
 .shelf {
-  position: relative; margin: 0 auto 22px; padding: 12px 8px; border-radius: 16px;
-  background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
-    background-image: url(/images/tube-back1.jpg); background-size: cover; background-position: center
+  position: relative; margin: 0 auto 22px; padding: 18px 8px; border-radius: 2px;
+  background: rgba(255, 255, 255, 0.6); /*backdrop-filter: blur(8px);*/
+  /*border: 1px solid rgba(255, 255, 255, 0.5);*/ box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
+    background-image: url(/images/tube-back1.jpg); background-size: cover ; background-position: center
 }
 .shelf-head { display: flex; align-items: center; padding: 2px 14px 6px; }
 .shelf-badge {
