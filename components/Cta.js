@@ -16,6 +16,7 @@ export default function Cta({ t, lang }) {
       </a>
 <br/><br/>
 
+        <p className="cta-iframe-hint">{t('bookstubeHome.ctaIframeHint')}</p>
         <iframe
           className="cta-iframe"
           width="1200"

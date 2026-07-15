@@ -318,7 +318,11 @@ a.pager-btn:active { transform: scale(.96); }
 .convert p { max-width: 680px; margin: 12px auto 0; color: var(--ink-soft); line-height: 1.55; }
 .convert .btn { margin-top: 24px; }
 .books-tube-logo { max-width: min(100%, 640px); width: 100%; height: auto; border-radius: 12px; box-shadow: var(--shadow); }
+.cta-iframe-hint { font-weight: 600; color: var(--ink); }
 .cta-iframe { max-width: 100%; border: 0; border-radius: 12px; box-shadow: var(--shadow); }
+@media (max-width: 760px) {
+  .cta-iframe-hint, .cta-iframe { display: none; }
+}
 
 /* ── Book detail ── */
 .detail { max-width: 960px; margin: 0 auto; padding: 20px 16px 48px; }

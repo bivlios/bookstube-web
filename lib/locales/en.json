@@ -46,7 +46,8 @@
     "topicEmotions": "Emotions",
     "ctaTitle": "Want a book made just for your child?",
     "ctaText": "With Books Giant, you can create a personalized illustrated book from your child's idea, photo, interests, or a topic they love.",
-    "ctaButton": "Create a free book"
+    "ctaButton": "Create a free book",
+    "ctaIframeHint": "Write a name for your story and start writing now. No need to register."
   },
   "bookPage": {
     "readNow": "Read illustrated book",
