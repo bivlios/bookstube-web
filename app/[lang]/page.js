@@ -107,12 +107,13 @@ export default async function LibraryHome({ params, searchParams }) {
     ? await getBook(pick.slug || pick.bookId, { seo: 1 }).catch(() => null)
     : null;
 
-  const covers = data.books.slice(0, 6).map((b) => b.coverUrl);
-
   return (
     <main dir={dir(lang)}>
-      <LibrarySwitcher lang={lang} activeId="bookstube" t={t} />
-      <Hero t={t} covers={covers} />
+      {/* The library switcher renders inside the hero band (its bottom row) so the
+          masthead reads as one dark surface instead of a stray bar above it. */}
+      <Hero t={t} lang={lang}>
+        <LibrarySwitcher lang={lang} activeId="bookstube" t={t} variant="hero" />
+      </Hero>
       <LangFilter t={t} basePath={`/${lang}`} availableLangs={data.availableLangs} />
       {featured ? <FeaturedBook data={featured} lang={lang} t={t} /> : null}
       <TopicCards t={t} lang={lang} availableTags={data.availableTags} />
