@@ -318,14 +318,19 @@ a.pager-btn:active { transform: scale(.96); }
 
 /* ── Convert section ── */
 .convert { margin-top: 32px; padding: 48px 16px; text-align: center; background: linear-gradient(135deg, #eef1ff 0%, #f6f0ff 100%); border-top: 1px solid #e3e6f5; }
-.convert h2 { font-size: clamp(20px, 3.5vw, 26px); font-weight: 800; margin: 0; }
+.convert h1, .convert h2 { font-size: clamp(20px, 3.5vw, 26px); font-weight: 800; margin: 0; }
 .convert p { max-width: 680px; margin: 12px auto 0; color: var(--ink-soft); line-height: 1.55; }
-.convert .btn { margin-top: 24px; }
+.convert-cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
 .books-tube-logo { max-width: min(100%, 640px); width: 100%; height: auto; border-radius: 12px; box-shadow: var(--shadow); }
+
+/* ── /create page (dedicated home for the creator embed — see Cta.js) ── */
+.create-page-back { max-width: 1200px; margin: 20px auto 0; padding: 0 16px; }
 .cta-iframe-hint { font-weight: 600; color: var(--ink); }
 .cta-iframe { max-width: 100%; border: 0; border-radius: 12px; box-shadow: var(--shadow); }
+.create-page-mobile-cta { display: none; }
 @media (max-width: 760px) {
   .cta-iframe-hint, .cta-iframe { display: none; }
+  .create-page-mobile-cta { display: inline-block; }
 }
 
 /* ── Book detail ── */

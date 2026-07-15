@@ -9,7 +9,7 @@
     "emotions": "Stories about feelings — anger, joy, fear and friendship — that help kids name and manage emotions."
   },
   "bookstubeHome": {
-    "heroTitle": "Free reading books for curious kids",
+    "heroTitle": "Free reading books for kids",
     "heroSubtitle": "Discover short, beautiful books about science, history, nature, emotions, technology, and the world — made for reading together.",
     "heroTrust": "No login needed. Just choose a book and read.",
     "heroPrimaryCta": "Start reading",
@@ -47,7 +47,8 @@
     "ctaTitle": "Want a book made just for your child?",
     "ctaText": "With Books Giant, you can create a personalized illustrated book from your child's idea, photo, interests, or a topic they love.",
     "ctaButton": "Create a free book",
-    "ctaIframeHint": "Write a name for your story and start writing now. No need to register."
+    "ctaIframeHint": "Write a name for your story and start writing now. No need to register.",
+    "ctaTryHere": "Try it right here"
   },
   "bookPage": {
     "readNow": "Read illustrated book",

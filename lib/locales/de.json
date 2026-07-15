@@ -47,7 +47,8 @@
     "ctaTitle": "Möchtet ihr ein Buch, das speziell für euer Kind gemacht ist?",
     "ctaText": "Mit Books Giant könnt ihr aus der Idee, dem Foto, den Interessen oder einem Lieblingsthema eures Kindes ein persönliches, illustriertes Buch erstellen.",
     "ctaButton": "Kostenloses Buch erstellen",
-    "ctaIframeHint": "Gebt eurer Geschichte einen Namen und legt jetzt los. Keine Anmeldung nötig."
+    "ctaIframeHint": "Gebt eurer Geschichte einen Namen und legt jetzt los. Keine Anmeldung nötig.",
+    "ctaTryHere": "Probiert es gleich hier aus"
   },
   "bookPage": {
     "readNow": "Illustriertes Buch lesen",

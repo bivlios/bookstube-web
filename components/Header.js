@@ -10,7 +10,11 @@ export default function Header({ lang, t }) {
         <img src="/images/logo-sml.png" alt={t('ui.booksgiant')} className="brand-logo" />
           {/*<span className="brand-name">{t('ui.booksgiant')}</span>*/}
       </a>
-      <HeaderSearch lang={lang} placeholder={t('tagLibrary.searchPlaceholder')} />
+      <HeaderSearch
+        lang={lang}
+        placeholder={t('tagLibrary.searchPlaceholder')}
+        closeLabel={t('bookPage.backToLibrary')}
+      />
       <div className="header-actions">
         <LangSwitcher lang={lang} />
         <a
