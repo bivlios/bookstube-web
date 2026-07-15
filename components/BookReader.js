@@ -236,7 +236,13 @@ export default function BookReader({
       aria-label={label}
     >
       <div className="native-reader" onClick={(e) => e.stopPropagation()}>
+        {/* StPageFlip sizes the book from its block's WIDTH only (height = width/2 ·
+            h/w), ignoring the container height — portrait-ish books came out taller
+            than .flip-wrap and were clipped by its overflow:hidden. The sizer fixes
+            the block's width via the book's own spread aspect-ratio against the
+            available height, so the width-derived height always fits exactly. */}
         <div className="flip-wrap">
+          <div className="flip-sizer" style={{ aspectRatio: `${w * 2} / ${h}` }}>
           {Flip ? (
             <Flip
               ref={bookRef}
@@ -288,6 +294,7 @@ export default function BookReader({
           ) : (
             <div className="reader-loading">…</div>
           )}
+          </div>
         </div>
 
         {/* Control bar below the book (inline). In fullscreen, CSS `order` lifts it above. */}

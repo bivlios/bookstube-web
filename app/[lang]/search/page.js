@@ -1,6 +1,6 @@
 import { searchBooks, getLibrary } from '@/lib/api';
 import { makeT, dir } from '@/lib/i18n';
-import { libBySlug, libName } from '@/lib/libraries';
+import { libBySlug, libName, libSlug } from '@/lib/libraries';
 import BookCard from '@/components/BookCard';
 import Cta from '@/components/Cta';
 
@@ -54,6 +54,8 @@ export default async function SearchPage({ params, searchParams }) {
   }
   const books = data?.books || [];
   const scopeName = libEntry ? libName(libEntry, lang) : null;
+  // Clear-search target: back to the library the search was scoped to (or home).
+  const backHref = libEntry ? `/${lang}/taglib/${libSlug(libEntry)}` : `/${lang}`;
 
   return (
     <main dir={dir(lang)}>
@@ -63,6 +65,9 @@ export default async function SearchPage({ params, searchParams }) {
           {scopeName ? <span className="lib-count">{scopeName}</span> : null}
           {data?.total ? <span className="lib-count">{data.total} {t('tagLibrary.books')}</span> : null}
         </h1>
+        <p className="search-clear">
+          <a href={backHref} className="chip">✕ {t('bookPage.backToLibrary')}</a>
+        </p>
         {books.length ? (
           <div className="grid">
             {books.map((b) => (
