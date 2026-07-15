@@ -1,6 +1,9 @@
-// Warm, child-friendly hero. The visual is a lightweight collage built from real
-// book covers (no images shipped, no animation libraries) — a graceful placeholder
-// until a final illustration exists.
+const HERO_VIDEO_URL = 'https://s3.eu-west-1.amazonaws.com/school.booksgiant.com/video/books-tube-hero.mp4';
+
+// Warm, child-friendly hero. The visual is the "books flying through a cosmic
+// tube" clip — poster = the matching still frame (books-tube-hero.jpg), which also
+// samples the palette for the glow behind it (deep space navy/purple/magenta),
+// tying the section's accent colors to the video instead of clashing with it.
 export default function Hero({ t, covers = [] }) {
   const tiles = covers.filter(Boolean).slice(0, 5);
   return (
@@ -19,12 +22,26 @@ export default function Hero({ t, covers = [] }) {
         </div>
       </div>
 
-        <img
-          src="/images/bookstube-hero.png"
-          alt="hero"
-          loading="lazy"
+      <div className="hero-visual-wrap">
+        <div className="hero-glow" aria-hidden="true" />
+        {/* autoPlay+muted+playsInline: the combination browsers require for
+            autoplay without a user gesture, including mobile Safari/Chrome. */}
+        <video
           className="hero-illustration"
-        />
+          poster="/images/books-tube-hero.jpg"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden="true"
+        >
+          <source src={HERO_VIDEO_URL} type="video/mp4" />
+          {/* Fallback for browsers without <video> support — never shown otherwise. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/images/books-tube-hero.jpg" alt="" className="hero-illustration" />
+        </video>
+      </div>
 
         {/*tiles.length ? (
         <div className="hero-visual_" aria-hidden="true">
