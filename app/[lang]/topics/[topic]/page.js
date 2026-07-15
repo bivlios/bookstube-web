@@ -72,7 +72,7 @@ export default async function TopicPage({ params, searchParams }) {
         )}
       </section>
       <MakeBookBanner lang={lang} t={t} />
-      <Cta t={t} />
+      <Cta t={t} lang={lang} />
     </main>
   );
 }

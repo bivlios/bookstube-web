@@ -78,7 +78,7 @@ export default async function SearchPage({ params, searchParams }) {
           <p className="empty">{t('tagLibrary.searchNoResults')}</p>
         )}
       </section>
-      <Cta t={t} />
+      <Cta t={t} lang={lang} />
     </main>
   );
 }

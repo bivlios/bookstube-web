@@ -18,7 +18,14 @@ html, body { margin: 0; padding: 0; }
 body {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   color: var(--ink);
-  background: linear-gradient(180deg, #e8eaf6 0%, #f5f7fa 40%, #e3e9f7 70%, #dce2f0 100%);
+  /* Same poster palette as the hero (navy #0b0f26, blue-violet #2e387f, magenta-purple
+     #9767a9) at the lighter strength the hero itself used before it went dark. */
+  background:
+    radial-gradient(70% 60vh at 8% 0, rgba(151, 103, 169, .38), transparent 62%),
+    radial-gradient(65% 55vh at 96% 4vh, rgba(46, 56, 127, .32), transparent 68%),
+    radial-gradient(80% 60vh at 50% 100%, rgba(11, 15, 38, .22), transparent 72%),
+    linear-gradient(135deg, #f6effc 0%, #eef1ff 50%, #e4ddf7 100%);
+  background-repeat: no-repeat;
   min-height: 100vh;
 }
 
@@ -110,11 +117,21 @@ a { color: inherit; text-decoration: none; }
 .hero {
   max-width: 1120px; margin: 0 auto; padding: 44px 16px 20px;
   display: flex; align-items: center; gap: 40px;
+  /* Gradient wash in the poster's own palette (navy #0b0f26, blue-violet #2e387f,
+     magenta-purple #9767a9), pushed dark/saturated — this section carries the
+     strongest version, text flips to light to stay readable on it. */
+  background:
+    radial-gradient(60% 85% at 12% 8%, rgba(151, 103, 169, .8), transparent 62%),
+    radial-gradient(55% 75% at 95% 4%, rgba(46, 56, 127, .75), transparent 68%),
+    radial-gradient(80% 70% at 45% 115%, rgba(11, 15, 38, .7), transparent 72%),
+    linear-gradient(135deg, #4a3878 0%, #362a63 50%, #211a42 100%);
+  border-radius: 20px;
 }
+.hero .btn-outline { color: #4a3878; }
 .hero-text { flex: 1 1 440px; min-width: 280px; }
-.hero h1 { font-size: clamp(27px, 5vw, 42px); font-weight: 800; margin: 0; line-height: 1.15; }
-.hero p { font-size: clamp(15px, 2.5vw, 18px); color: var(--ink-soft); max-width: 620px; margin: 16px 0 0; line-height: 1.55; }
-.hero-trust { font-size: 14px !important; font-weight: 600; color: var(--purple) !important; margin-top: 12px !important; }
+.hero h1 { font-size: clamp(27px, 5vw, 42px); font-weight: 800; margin: 0; line-height: 1.15; color: #fff; }
+.hero p { font-size: clamp(15px, 2.5vw, 18px); color: rgba(255, 255, 255, .82); max-width: 620px; margin: 16px 0 0; line-height: 1.55; }
+.hero-trust { font-size: 14px !important; font-weight: 600; color: #f3d9ff !important; margin-top: 12px !important; }
 .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
 
 /* Hero video — colors sampled from its own poster frame (books-tube-hero.jpg):
@@ -205,8 +222,8 @@ a { color: inherit; text-decoration: none; }
    the strip. The title reserves two lines so cards stay equal-height to begin with. */
 .card {
   width: 180px; background: var(--card-bg); border-radius: 12px; overflow: hidden;
-  box-shadow: var(--shadow); transition: transform .2s ease, box-shadow .2s ease;
-  display: flex; flex-direction: column;
+  /*box-shadow: var(--shadow);*/ transition: transform .2s ease, box-shadow .2s ease;
+  display: flex; flex-direction: column; opacity: 0.85 ;
 }
 .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0, 0, 0, .18); }
 .card-link { display: flex; flex-direction: column; flex: 1; }
@@ -239,7 +256,7 @@ a { color: inherit; text-decoration: none; }
   position: relative; margin: 0 auto 22px; padding: 12px 8px; border-radius: 16px;
   background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
-    background-image: url(/images/tube-back.jpg); background-size: cover; background-position: center
+    background-image: url(/images/tube-back1.jpg); background-size: cover; background-position: center
 }
 .shelf-head { display: flex; align-items: center; padding: 2px 14px 6px; }
 .shelf-badge {
@@ -301,6 +318,7 @@ a.pager-btn:active { transform: scale(.96); }
 .convert p { max-width: 680px; margin: 12px auto 0; color: var(--ink-soft); line-height: 1.55; }
 .convert .btn { margin-top: 24px; }
 .books-tube-logo { max-width: min(100%, 640px); width: 100%; height: auto; border-radius: 12px; box-shadow: var(--shadow); }
+.cta-iframe { max-width: 100%; border: 0; border-radius: 12px; box-shadow: var(--shadow); }
 
 /* ── Book detail ── */
 .detail { max-width: 960px; margin: 0 auto; padding: 20px 16px 48px; }

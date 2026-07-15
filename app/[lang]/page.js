@@ -85,7 +85,7 @@ export default async function LibraryHome({ params, searchParams }) {
             <p className="empty">{t('groups.noBooks')}</p>
           )}
         </section>
-        <Cta t={t} />
+        <Cta t={t} lang={lang} />
       </main>
     );
   }
@@ -142,7 +142,7 @@ export default async function LibraryHome({ params, searchParams }) {
           client-paginated popular grid. Revisit later. */}
 
       <ParentValue t={t} />
-      <Cta t={t} />
+      <Cta t={t} lang={lang} />
     </main>
   );
 }

@@ -1,7 +1,7 @@
-import { tubeCta } from '@/lib/cta';
+import { tubeCta, tubeCreateAnonymCta } from '@/lib/cta';
 
 // Gentle conversion section — kept visually secondary (free library first).
-export default function Cta({ t }) {
+export default function Cta({ t, lang }) {
   return (
     <section className="convert">
       <h2>{t('bookstubeHome.ctaTitle')}</h2>
@@ -15,7 +15,16 @@ export default function Cta({ t }) {
         {t('bookstubeHome.ctaButton')}
       </a>
 <br/><br/>
-        <img src="/images/creator.jpg" alt="creator" className="books-tube-logo" />
+
+        <iframe
+          className="cta-iframe"
+          width="1200"
+          height="800"
+          src={tubeCreateAnonymCta(lang, 'bookstube_footer_iframe')}
+          title={t('bookstubeHome.ctaTitle')}
+          loading="lazy"
+        />
+        {/*<img src="/images/creator.jpg" alt="creator" className="books-tube-logo" />*/}
     </section>
   );
 }

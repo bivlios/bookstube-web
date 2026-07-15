@@ -80,7 +80,7 @@ export default async function TagLibrary({ params, searchParams }) {
           <p className="empty">{t('groups.noBooks')}</p>
         )}
       </section>
-      <Cta t={t} />
+      <Cta t={t} lang={lang} />
     </main>
   );
 }
