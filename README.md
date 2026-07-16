@@ -40,9 +40,12 @@ BOOKSTUBE_API_BASE=https://school.booksgiant.com/api/bookstube
 | Path | Page |
 |---|---|
 | `/` | → redirects to `/{locale}` (Accept-Language, default `he`) |
-| `/[lang]` | Library home — hero, topic chips, popular grid, conversion CTA |
+| `/[lang]` | Library home — dark masthead (hero + library switcher), topic chips, popular grid, conversion CTA |
 | `/[lang]/books/[slug]` | Book detail — cover, facts, summary, crawlable text, JSON-LD, "Read now" iframe |
 | `/[lang]/taglib/[tagid]` | A curated collection |
+| `/[lang]/topics/[topic]` | Topic landing page (programmatic SEO) — `noindex` until the topic has books |
+| `/[lang]/search` | Search results (`noindex`) — header search bar submits here |
+| `/[lang]/create` | Dedicated page for the "write your own book" creator iframe (`noindex`) |
 | `/sitemap.xml`, `/robots.txt` | Generated from the API |
 
 Locales: `he`, `en`, `ar`, `de` (RTL for he/ar). Strings live in `lib/locales/*.json`
@@ -57,11 +60,15 @@ app/
     page.js              library home
     books/[slug]/page.js book detail
     taglib/[tagid]/page.js curated collection
+    topics/[topic]/page.js  topic landing page
+    search/page.js       search results (noindex)
+    create/page.js       creator iframe, own page (noindex) — see CLAUDE.md
     not-found.js
   sitemap.js  robots.js  globals.css
-components/               Hero, TopicChips, LibraryGrid, BookCard, Pagination, Cta, Header,
-                         LangSwitcher, ReaderButton(iframe), BookReader(native flipbook, RTL)
-lib/                      api.js, i18n.js, topics.js, cta.js, locales/
+components/               Hero, LibrarySwitcher, TopicCards, LangFilter, FeaturedBook,
+                         AnimatedLibrary, BookCard, Cta, Header, HeaderSearch, LangSwitcher,
+                         BackButton, ReaderButton(iframe), BookReader(native flipbook, RTL)
+lib/                      api.js, i18n.js, topics.js, libraries.js, cta.js, locales/
 middleware.js            locale-prefix redirect
 ```
 
@@ -81,10 +88,15 @@ middleware.js            locale-prefix redirect
   listener boots. Escape-to-close + body scroll-lock.
 - Native `react-pageflip` player for published books, with **RTL (he/ar)** reading order —
   see [`docs/native-player.md`](docs/native-player.md). Falls back to the iframe when unpublished.
+- Search: header search form → `/[lang]/search` (server-rendered results, `noindex`); falls back
+  to filtering the newest pages client-side until the API's dedicated `/search` endpoint is live.
+  Header search bar shows a close (✕) button on the results page that clears the query and
+  returns to whichever library the search was scoped to.
+- Book creator: `tube.booksgiant.com/create-anonym` is iframed only on its own `/[lang]/create`
+  page (never inline in content) — see CLAUDE.md for why.
 
 ## Not yet done (post-scaffold)
 
-- Search (the API has no search endpoint; the old client-side search wasn't ported).
 - Native-player TTS: **player side done** (narration button + auto-advance in `BookReader`,
   consumes `reader.pageAudio`); waiting on the Galaxy deploy of the read-API change that ships
   the audio URLs. See `docs/native-player.md` → "TTS narration".
