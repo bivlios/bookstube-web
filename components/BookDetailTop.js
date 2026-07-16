@@ -68,13 +68,12 @@ export default function BookDetailTop({ book, lang, bDir, readingMinutes, simila
 
           {book.summery ? <p className="summary">{book.summery}</p> : null}
 
-          {book.topics?.length ? (
-            <div className="topics-inline">
-              {book.topics.map((tp) => (
-                <span key={tp} className="chip">{tp}</span>
-              ))}
-            </div>
-          ) : null}
+          <div className="topics-inline">
+            {book.topics?.map((tp) => (
+              <span key={tp} className="chip">{tp}</span>
+            ))}
+            <AdminBookId bookId={book.bookId} />
+          </div>
 
           <div className="detail-actions">
             <button type="button" className="btn btn-read" onClick={openReader}>
@@ -89,7 +88,6 @@ export default function BookDetailTop({ book, lang, bDir, readingMinutes, simila
               </svg>
               {copied ? t('bookPage.linkCopied') : t('bookPage.share')}
             </button>
-            <AdminBookId bookId={book.bookId} />
           </div>
         </div>
       </div>

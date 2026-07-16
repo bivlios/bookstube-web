@@ -389,6 +389,7 @@ a.pager-btn:active { transform: scale(.96); }
 .facts span { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; }
 .summary { line-height: 1.6; }
 .topics-inline { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+.topics-inline:empty { margin: 0; }
 .detail-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
 .story { margin: 36px auto 0; max-width: 720px; }
 .story-heading { font-size: 20px; font-weight: 800; margin: 0 0 12px; }
