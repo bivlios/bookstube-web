@@ -1,7 +1,7 @@
 import { getBooksIndex, getLibrary } from '@/lib/api';
 import { LOCALES } from '@/lib/i18n';
 import { SITE_URL } from '@/lib/cta';
-import { LIBRARIES, libSlug } from '@/lib/libraries';
+import { LIBRARIES, libSlug, libInLang } from '@/lib/libraries';
 import { TOPICS } from '@/lib/topics';
 
 export const revalidate = 3600;
@@ -18,8 +18,9 @@ export default async function sitemap() {
   }));
 
   // Curated collection pages (per language — they render localized headings/copy).
+  // Only the languages each collection is scoped to (lib.langs); the rest are noindex.
   const collections = LIBRARIES.filter((lib) => !lib.home).flatMap((lib) =>
-    LOCALES.map((l) => ({
+    LOCALES.filter((l) => libInLang(lib, l)).map((l) => ({
       url: `${SITE_URL}/${l}/taglib/${libSlug(lib)}`,
       lastModified: now,
       changeFrequency: 'weekly',

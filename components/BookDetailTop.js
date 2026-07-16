@@ -5,6 +5,7 @@ import { makeT } from '@/lib/i18n';
 import BookReader from './BookReader';
 import ReaderButton from './ReaderButton';
 import CoverImage from './CoverImage';
+import AdminBookId from './AdminBookId';
 
 // Cover + facts + CTAs for the book detail page. Holds the reader's open state so
 // clicking the cover image opens the same overlay as the "Read illustrated book" CTA.
@@ -21,16 +22,13 @@ export default function BookDetailTop({ book, lang, bDir, readingMinutes, simila
   const readLabel = t('bookPage.readNow');
   const openReader = () => (usesNative ? setFullscreen(true) : setOpen(true));
 
-  // Native share sheet on mobile; copy-link fallback (with brief confirmation) elsewhere.
-  // decodeURI: Hebrew/Arabic slugs come percent-encoded from location.href — share the
-  // readable form so the link doesn't look like garbage in a WhatsApp message.
+  // Copies the book's clean URL (origin + path only — no #bid hash, no query params) so
+  // "share" always yields a pasteable link, instead of the OS share sheet that surfaces
+  // Reading List / Notes / etc. decodeURI: Hebrew/Arabic slugs come percent-encoded from
+  // location — copy the readable form so the link doesn't look like garbage in WhatsApp.
   const share = async () => {
-    let url = window.location.href;
+    let url = window.location.origin + window.location.pathname;
     try { url = decodeURI(url); } catch (e) { /* malformed — share encoded form */ }
-    if (navigator.share) {
-      try { await navigator.share({ title: book.title, url }); } catch (e) { /* user cancelled */ }
-      return;
-    }
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
@@ -91,6 +89,7 @@ export default function BookDetailTop({ book, lang, bDir, readingMinutes, simila
               </svg>
               {copied ? t('bookPage.linkCopied') : t('bookPage.share')}
             </button>
+            <AdminBookId bookId={book.bookId} />
           </div>
         </div>
       </div>

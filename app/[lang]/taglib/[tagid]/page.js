@@ -1,7 +1,7 @@
 import { getLibrary } from '@/lib/api';
 import { makeT, dir } from '@/lib/i18n';
 import { topicKey } from '@/lib/topics';
-import { libBySlug, libName, libSlug, libIntro } from '@/lib/libraries';
+import { libBySlug, libName, libSlug, libIntro, libInLang } from '@/lib/libraries';
 import { OG_IMAGE } from '@/lib/cta';
 import LibrarySwitcher from '@/components/LibrarySwitcher';
 import TopicChips from '@/components/TopicChips';
@@ -26,6 +26,9 @@ export async function generateMetadata({ params }) {
     description,
     alternates: { canonical: `/${params.lang}/taglib/${canonicalSeg}` },
     openGraph: { title, description, type: 'website', images: [OG_IMAGE] },
+    // A collection viewed in a language it isn't scoped to (lib.langs) still renders
+    // for direct links, but shouldn't be indexed — it's unlinked and unsitemapped.
+    ...(lib && !libInLang(lib, params.lang) ? { robots: { index: false, follow: true } } : null),
   };
 }
 

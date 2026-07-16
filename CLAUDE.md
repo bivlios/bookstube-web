@@ -16,7 +16,7 @@ This site exists to attract organic search traffic; the hope is it grows into ma
 - Next.js App Router (plain JS, no TS) on Vercel. Languages: `he` (default) / `en` / `ar` / `de`, routed as `/[lang]/…`.
 - **All data** comes from the read-only JSON API at `library.booksgiant.com/api/bookstube/*`, served by the Meteor app in `../books-giant-school-2026` (`imports/startup/server/bookstube-api.js` → `imports/api/books/server/bookstube-read.js`). Fetches are ISR-cached (`lib/api.js`).
 - The only write is the fire-and-forget view counter: `POST /api/bookstube/view/:bookId` (`components/ViewPing.js`).
-- The curated library list (pills/switcher) is hardcoded in `lib/libraries.js` — edit + push, no DB.
+- The curated library list (pills/switcher) is hardcoded in `lib/libraries.js` — edit + push, no DB. `LIBRARY_ORDER` there maps each site language to the collections it shows and their pill order; a collection absent from a language's list gets no pill/sitemap entry there and its URL is noindexed in that language.
 - Book covers that are missing on S3 get a generated SVG placeholder (`components/CoverImage.js`).
 - **Home masthead** (`components/Hero.js`): header, hero and the library switcher render as one
   continuous dark-purple band — `LibrarySwitcher` takes `variant="hero"` to render as the band's

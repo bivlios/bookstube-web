@@ -43,6 +43,7 @@ export default async function BookDetail({ params }) {
     '@context': 'https://schema.org',
     '@type': 'Book',
     name: book.title,
+    identifier: book.bookId,
     inLanguage: book.orig_language,
     image: book.coverUrl,
     ...(book.summery ? { description: book.summery } : {}),
