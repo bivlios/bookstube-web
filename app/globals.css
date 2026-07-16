@@ -48,6 +48,11 @@ a { color: inherit; text-decoration: none; }
 }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; white-space: nowrap; }
 .brand-logo { height: 60px; width: auto; display: block; flex: 0 0 auto; }
+.brand-tagline {
+  font-size: 18px; font-weight: 500; font-style: italic; color: rgba(255, 255, 255, 0.65);
+  white-space: nowrap;
+}
+@media (max-width: 640px) { .brand-tagline { display: none; } }
 .header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
 .header-search {
   display: flex; align-items: center; flex: 1 1 200px; max-width: 420px;
@@ -74,16 +79,18 @@ a { color: inherit; text-decoration: none; }
 .btn-header { flex: 1 1 auto; min-width: 0; text-align: center; }
 
 /* ── Library switcher ── */
+/* Sits directly above the .library grid it switches between — same max-width,
+   zero gap, sharing its top corners so the two read as one connected panel
+   (see the `.lib-switch + .library` override below) instead of a stray bar. */
 .lib-switch {
-  position: sticky; top: var(--header-h, 60px); z-index: 99;
+  max-width: 1200px; margin: 20px auto 0; border-radius: 20px 20px 0 0;
   background: rgba(40, 30, 78, 0.92);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 .lib-switch-inner {
-  max-width: 1200px; margin: 0 auto; padding: 8px 16px;
-  display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; overflow-x: auto;
+  padding: 10px 16px;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap; overflow-x: auto;
   scrollbar-width: none;
 }
 .lib-switch-inner::-webkit-scrollbar { display: none; }
@@ -99,18 +106,6 @@ a { color: inherit; text-decoration: none; }
 }
 .lib-pill:hover { background: rgba(255, 255, 255, 0.14); color: #fff; }
 .lib-pill-active { color: #4f46e5; background: #fff; border-color: #fff; }
-
-/* Hero variant — the same pills rendered as the masthead's bottom row (home page):
-   not sticky, transparent over the band, centered, wrapping instead of scrolling. */
-.lib-switch-hero {
-  position: static; background: transparent;
-  -webkit-backdrop-filter: none; backdrop-filter: none;
-  border-bottom: 0; border-top: 1px solid rgba(255, 255, 255, 0.12);
-}
-.lib-switch-hero .lib-switch-inner {
-  max-width: 1120px; padding: 14px 16px 20px;
-  flex-wrap: wrap; justify-content: center; overflow-x: visible;
-}
 
 /* Book count shown next to a library/section heading. */
 .lib-count {
@@ -135,8 +130,7 @@ a { color: inherit; text-decoration: none; }
 /* ── Hero ── */
 /* Full-bleed dark masthead in the video poster's palette (navy #0b0f26,
    blue-violet #2e387f, magenta-purple #9767a9), plus a scatter of star dots to
-   echo the cosmic clip and the candy logo. The library-switcher pills render as
-   the band's bottom row (see Hero.js / LibrarySwitcher variant="hero"). */
+   echo the cosmic clip and the candy logo. */
 .hero-band {
   color: #fff;
   background:
@@ -233,6 +227,9 @@ a { color: inherit; text-decoration: none; }
     /*border: 10px solid #e3e6f5; */
   background: rgba(255, 255, 255, .82) url(/images/tubes-back.jpg) center / 100% 100% no-repeat;
 }
+/* Directly under a library switcher: butt up against it (no gap, no top corners)
+   so the pill bar and the grid read as one connected panel. */
+.lib-switch + .library { margin-top: 0; border-radius: 0 0 20px 20px; }
 .section-title { text-align: center; font-size: clamp(19px, 3vw, 24px); font-weight: 800; margin: 55px auto 24px; }
 /* Intro paragraph on topic landing / collection pages — SEO copy under the heading. */
 .topic-intro { max-width: 680px; margin: -4px auto 20px; text-align: center; color: #4a4d75; font-size: 15px; line-height: 1.55; }
@@ -508,7 +505,8 @@ a.pager-btn:active { transform: scale(.96); }
    explicit width otherwise wins over inset and anchors the overlay to one side). */
 .reader-embed.is-fullscreen {
   position: fixed; inset: 0; z-index: 1000; margin: 0; width: auto;
-  background: rgba(0, 0, 0, .7); display: grid; place-items: center; padding: 16px;
+  /* Same deep navy as the hero band (see .hero-band), not plain black. */
+  background: rgba(11, 15, 38, .92); display: grid; place-items: center; padding: 16px;
 }
 /* Native browser fullscreen (Fullscreen API) — element fills the screen already. */
 .reader-embed:fullscreen { padding: 24px; }

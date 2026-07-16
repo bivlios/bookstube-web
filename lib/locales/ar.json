@@ -255,6 +255,7 @@
     "makePublic": "أزل الخصوصية عن الصف"
   },
   "ui": {
+    "tagline": "افتح كتابًا، وادخل عالمًا",
     "words": "كلمات",
     "copyTextToClip": "نسخ النص",
     "bookStatistic": "إحصائيات الكتاب",

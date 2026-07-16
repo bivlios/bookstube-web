@@ -264,6 +264,7 @@
     "makePublic": "Remove privacy from class"
   },
   "ui": {
+    "tagline": "Open a book, enter a world",
     "words": "words",
     "copyTextToClip": "Copy text",
     "bookStatistic": "Book statistics",

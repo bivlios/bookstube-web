@@ -8,7 +8,7 @@ export default function Header({ lang, t }) {
       <a href={`/${lang}`} className="brand">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/images/logo-sml.png" alt={t('ui.booksgiant')} className="brand-logo" />
-          {/*<span className="brand-name">{t('ui.booksgiant')}</span>*/}
+        <span className="brand-tagline">{t('ui.tagline')}</span>
       </a>
       <HeaderSearch
         lang={lang}

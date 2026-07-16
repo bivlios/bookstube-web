@@ -18,10 +18,10 @@ This site exists to attract organic search traffic; the hope is it grows into ma
 - The only write is the fire-and-forget view counter: `POST /api/bookstube/view/:bookId` (`components/ViewPing.js`).
 - The curated library list (pills/switcher) is hardcoded in `lib/libraries.js` — edit + push, no DB. `LIBRARY_ORDER` there maps each site language to the collections it shows and their pill order; a collection absent from a language's list gets no pill/sitemap entry there and its URL is noindexed in that language.
 - Book covers that are missing on S3 get a generated SVG placeholder (`components/CoverImage.js`).
-- **Home masthead** (`components/Hero.js`): header, hero and the library switcher render as one
-  continuous dark-purple band — `LibrarySwitcher` takes `variant="hero"` to render as the band's
-  transparent bottom row instead of the sticky bar used on inner pages. Colors are the video
-  poster's own palette (navy/blue-violet/magenta, see `.hero-band` in `globals.css`).
+- **Home masthead** (`components/Hero.js`): header + hero render as one dark-purple band, colors
+  from the video poster's own palette (navy/blue-violet/magenta, see `.hero-band` in `globals.css`).
+  `LibrarySwitcher` renders separately, directly above the `.library` grid on every page (home and
+  inner) — CSS (`.lib-switch + .library`) joins the two into one visual panel with no gap.
 - **Book creator embed** (`tube.booksgiant.com/create-anonym`): only ever iframed on its own
   `/[lang]/create` page, never inline on content pages — the embedded app auto-focuses an input
   on load, and browsers scroll cross-origin iframes into view on focus, which was a jarring jump

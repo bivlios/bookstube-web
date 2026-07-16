@@ -5,7 +5,7 @@ import { makeT } from '@/lib/i18n';
 import BookReader from './BookReader';
 import ReaderButton from './ReaderButton';
 import CoverImage from './CoverImage';
-import AdminBookId from './AdminBookId';
+import BookIdChip from './BookIdChip';
 
 // Cover + facts + CTAs for the book detail page. Holds the reader's open state so
 // clicking the cover image opens the same overlay as the "Read illustrated book" CTA.
@@ -72,7 +72,7 @@ export default function BookDetailTop({ book, lang, bDir, readingMinutes, simila
             {book.topics?.map((tp) => (
               <span key={tp} className="chip">{tp}</span>
             ))}
-            <AdminBookId bookId={book.bookId} />
+            <BookIdChip bookId={book.bookId} />
           </div>
 
           <div className="detail-actions">

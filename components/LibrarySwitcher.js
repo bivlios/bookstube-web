@@ -1,16 +1,13 @@
 import { librariesFor, libName, libHref } from '@/lib/libraries';
 
 // Server-rendered pills linking to each curated collection (crawlable links).
-// Only collections scoped to the current language show (lib.langs). Default:
-// sticky dark bar under the header (collection/search pages). With
-// variant="hero" it renders as a transparent row for slotting inside the
-// hero masthead instead (home page).
-export default function LibrarySwitcher({ lang, activeId, t, variant }) {
+// Shows only the collections + order set for the current language (LIBRARY_ORDER
+// in lib/libraries.js). Renders directly above the book grid it switches between.
+export default function LibrarySwitcher({ lang, activeId, t }) {
   const libs = librariesFor(lang);
   if (libs.length < 2) return null;
-  const cls = variant === 'hero' ? 'lib-switch lib-switch-hero' : 'lib-switch';
   return (
-    <nav className={cls} aria-label="Collections">
+    <nav className="lib-switch" aria-label="Collections">
       <div className="lib-switch-inner">
         {t ? <span className="lib-switch-label">{t('ui.selectLibrary')}</span> : null}
         {libs.map((lib) => (

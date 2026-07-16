@@ -1,7 +1,7 @@
 import { getLibrary, getBook } from '@/lib/api';
 import { makeT, dir, LOCALES } from '@/lib/i18n';
 import { topicKey, topicByTag } from '@/lib/topics';
-import { libNameById } from '@/lib/libraries';
+import { libNameById, FEATURED_BOOKS, HOME_LIB_ID } from '@/lib/libraries';
 import { OG_IMAGE } from '@/lib/cta';
 import Hero from '@/components/Hero';
 import LibrarySwitcher from '@/components/LibrarySwitcher';
@@ -45,7 +45,7 @@ export default async function LibraryHome({ params, searchParams }) {
   const bookLang = LOCALES.includes(searchParams?.bookLang) ? searchParams.bookLang : undefined;
   const skip = Number(searchParams?.skip) || 0;
 
-  const data = (await getLibrary({ lang, topic, bookLang, skip, limit: LIMIT })) || {
+  const data = (await getLibrary({ lib: HOME_LIB_ID, lang, topic, bookLang, skip, limit: LIMIT })) || {
     books: [],
     total: 0,
   };
@@ -58,13 +58,13 @@ export default async function LibraryHome({ params, searchParams }) {
       : t(`bookstubeHome.booksIn_${bookLang}`);
     return (
       <main dir={dir(lang)}>
-        <LibrarySwitcher lang={lang} activeId="bookstube" t={t} />
         {/* While a language filter is active the facet reflects the filtered set,
             so only pass it on the unfiltered view — pills must not vanish mid-use. */}
         <LangFilter t={t} active={bookLang} basePath={`/${lang}`} topic={topic}
                     availableLangs={bookLang ? undefined : data.availableLangs} />
         <TopicCards t={t} lang={lang} active={topic} availableTags={data.availableTags} />
         <MakeBookBanner lang={lang} t={t} />
+        <LibrarySwitcher lang={lang} activeId={HOME_LIB_ID} t={t} />
         <section id="library" className="library">
           <h2 className="section-title">
             {heading}
@@ -73,6 +73,7 @@ export default async function LibraryHome({ params, searchParams }) {
           {data.books.length ? (
             <AnimatedLibrary
               lang={lang}
+              lib={HOME_LIB_ID}
               topic={topic}
               bookLang={bookLang}
               initialBooks={data.books}
@@ -94,39 +95,50 @@ export default async function LibraryHome({ params, searchParams }) {
   // a dedicated server-side filtered fetch (not a client-side split of the mixed `data`
   // page above) so a full LIMIT of same-language books fills the grid, instead of whatever
   // fraction of one mixed page happened to match.
-  const langData = await getLibrary({ lang, bookLang: lang, skip, limit: LIMIT }).catch(() => null);
+  const langData = await getLibrary({ lib: HOME_LIB_ID, lang, bookLang: lang, skip, limit: LIMIT }).catch(() => null);
   // Require at least a full shelf's worth before preferring the language-filtered set —
   // a couple of stray matches would otherwise starve the grid down to a near-empty page.
   const hasLangBooks = (langData?.books?.length || 0) >= 10;
   const primary = hasLangBooks ? langData.books : data.books;
   const primaryTotal = hasLangBooks ? langData.total : data.total;
 
-  // Featured: prefer a same-language book with a summary; fetch its detail for facts.
-  const pick = primary.find((b) => b.summery) || data.books.find((b) => b.summery) || data.books[0];
-  const featured = pick
-    ? await getBook(pick.slug || pick.bookId, { seo: 1 }).catch(() => null)
-    : null;
+  // Featured: try the curated FEATURED_BOOKS list first (lib/libraries.js), in order,
+  // preferring an entry whose orig_language matches the visitor's language; falls back
+  // to the first resolving entry, then to the old heuristic (first same-language book
+  // with a summary) if the list is empty or every entry has gone stale.
+  let featured = null;
+  let firstResolvedFeatured = null;
+  for (const idOrSlug of FEATURED_BOOKS) {
+    const candidate = await getBook(idOrSlug, { seo: 1 }).catch(() => null);
+    if (!candidate) continue;
+    if (!firstResolvedFeatured) firstResolvedFeatured = candidate;
+    if (candidate.book?.orig_language === lang) { featured = candidate; break; }
+  }
+  featured = featured || firstResolvedFeatured;
+
+  if (!featured) {
+    const pick = primary.find((b) => b.summery) || data.books.find((b) => b.summery) || data.books[0];
+    featured = pick ? await getBook(pick.slug || pick.bookId, { seo: 1 }).catch(() => null) : null;
+  }
 
   return (
     <main dir={dir(lang)}>
-      {/* The library switcher renders inside the hero band (its bottom row) so the
-          masthead reads as one dark surface instead of a stray bar above it. */}
-      <Hero t={t} lang={lang}>
-        <LibrarySwitcher lang={lang} activeId="bookstube" t={t} variant="hero" />
-      </Hero>
+      <Hero t={t} lang={lang} />
       <LangFilter t={t} basePath={`/${lang}`} availableLangs={data.availableLangs} />
       {featured ? <FeaturedBook data={featured} lang={lang} t={t} /> : null}
       <TopicCards t={t} lang={lang} availableTags={data.availableTags} />
       <MakeBookBanner lang={lang} t={t} />
+      <LibrarySwitcher lang={lang} activeId={HOME_LIB_ID} t={t} />
 
       <section id="library" className="library">
         <h2 className="section-title">
-          {libNameById('bookstube', lang)}
+          {libNameById(HOME_LIB_ID, lang)}
           {primaryTotal ? <span className="lib-count">{primaryTotal} {t('tagLibrary.books')}</span> : null}
         </h2>
         {primary.length ? (
           <AnimatedLibrary
             lang={lang}
+            lib={HOME_LIB_ID}
             prioritizeLang
             initialBooks={primary}
             total={primaryTotal}

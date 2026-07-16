@@ -57,9 +57,9 @@ export default async function TagLibrary({ params, searchParams }) {
 
   return (
     <main dir={dir(lang)}>
-      <LibrarySwitcher lang={lang} activeId={libId} t={t} />
       <TopicChips t={t} active={topic} basePath={base} availableTags={data.availableTags} />
       <MakeBookBanner lang={lang} t={t} />
+      <LibrarySwitcher lang={lang} activeId={libId} t={t} />
       <section id="library" className="library">
         <h1 className="section-title">
           {heading}

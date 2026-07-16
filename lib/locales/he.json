@@ -52,7 +52,7 @@
     "ctaTryHere": "נסו את זה כאן"
   },
   "bookPage": {
-    "readNow": "קראו את הספר המאויר",
+    "readNow": "קראו את הסיפור",
     "createSimilar": "צרו ספר דומה משלכם",
     "listen": "הקראת הסיפור",
     "share": "שיתוף",
@@ -259,6 +259,7 @@
     "noTeacher": "ללא מורה"
   },
   "ui": {
+    "tagline": "פותחים ספר, נכנסים לעולם",
     "booksTube": "BooksTube",
     "words": "מילים",
     "copyTextToClip": "העתקת הטקסט",

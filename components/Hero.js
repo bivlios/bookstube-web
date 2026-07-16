@@ -3,10 +3,8 @@ const HERO_VIDEO_URL = 'https://s3.eu-west-1.amazonaws.com/school.booksgiant.com
 // Full-bleed dark masthead. The visual is the "books flying through a cosmic
 // tube" clip — poster = the matching still frame (books-tube-hero.jpg), whose
 // palette (deep space navy/blue-violet/magenta) also drives the band's gradient,
-// so the video sits in the section instead of on it. `children` renders at the
-// bottom of the band — the home page slots the library switcher pills there so
-// collections read as part of the masthead rather than a stray bar above it.
-export default function Hero({ t, lang, children }) {
+// so the video sits in the section instead of on it.
+export default function Hero({ t, lang }) {
   return (
     <section className="hero-band">
       <div className="hero">
@@ -48,8 +46,6 @@ export default function Hero({ t, lang, children }) {
           </video>
         </div>
       </div>
-
-      {children}
     </section>
   );
 }
