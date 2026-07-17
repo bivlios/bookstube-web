@@ -107,6 +107,21 @@ a { color: inherit; text-decoration: none; }
 .lib-pill:hover { background: rgba(255, 255, 255, 0.14); color: #fff; }
 .lib-pill-active { color: #4f46e5; background: #fff; border-color: #fff; }
 
+/* Book-language filter pills on the same bar (see LibrarySwitcher) — pushed to the
+   bar's inline end behind a divider, smaller than the collection pills beside them. */
+.lib-switch-langs {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  margin-inline-start: auto; padding-inline-start: 12px;
+  border-inline-start: 1px solid rgba(255, 255, 255, 0.18);
+}
+.lang-pill {
+  flex: 0 0 auto; white-space: nowrap;
+  font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 999px;
+  color: rgba(255, 255, 255, 0.7); background: rgba(255, 255, 255, 0.06);
+}
+.lang-pill:hover { background: rgba(255, 255, 255, 0.16); color: #fff; }
+.lang-pill-active { color: #fff; background: var(--orange); }
+
 /* Book count shown next to a library/section heading. */
 .lib-count {
   display: inline-block; margin-inline-start: 12px; vertical-align: middle;
@@ -187,9 +202,6 @@ a { color: inherit; text-decoration: none; }
   .hero p { margin-inline: auto; }
   .hero-cta { justify-content: center; }
 }
-
-/* ── Language filter ── */
-.lang-filter { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 1000px; margin: 20px auto 0; padding: 0 16px; }
 
 /* ── Topics ── */
 .topics { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 1000px; margin: 8px auto 0; padding: 0 16px; }
@@ -469,9 +481,22 @@ a.pager-btn:active { transform: scale(.96); }
   transition: background .12s ease, transform .12s ease;
 }
 .reader-bar-controls button:hover { background: rgba(255, 255, 255, 0.34); transform: translateY(-1px); }
-.reader-bar-controls .narr-btn { font-size: 22px; }
-.reader-bar-controls .narr-on { background: var(--orange); }
-.reader-bar-controls .narr-on:hover { background: #ea6a0a; }
+/* Narration toggle — the one button kids must find, so it's a labeled orange pill
+   (white SVG glyph, not a dark emoji) in both bar themes, pulsing while playing. */
+.reader-bar-controls .narr-btn {
+  width: auto; min-width: 48px; padding: 0 16px; gap: 8px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--orange); color: #fff; font-size: 15px; font-weight: 700;
+  box-shadow: 0 3px 12px rgba(249, 115, 22, 0.45);
+}
+.reader-bar-controls .narr-btn:hover { background: #ea6a0a; }
+.reader-bar-controls .narr-btn svg { flex: 0 0 auto; }
+.narr-label { white-space: nowrap; }
+.reader-bar-controls .narr-on { animation: narr-pulse 1.8s ease-in-out infinite; }
+@keyframes narr-pulse {
+  0%, 100% { box-shadow: 0 3px 12px rgba(249, 115, 22, 0.45); }
+  50% { box-shadow: 0 3px 22px rgba(249, 115, 22, 0.85); }
+}
 .reader-close-bar { margin-inline-start: 6px; background: rgba(255, 255, 255, 0.12) !important; font-size: 24px !important; }
 .reader-close-bar:hover { background: rgba(255, 80, 80, 0.55) !important; }
 .reader-bar-controls .fs-btn { font-size: 20px; }
@@ -480,6 +505,9 @@ a.pager-btn:active { transform: scale(.96); }
   .reader-bar-meta .rb-title { font-size: 15px; max-width: 40vw; }
   .reader-bar-controls { gap: 8px; }
   .reader-bar-controls button { width: 42px; height: 42px; font-size: 22px; }
+  /* No room for the label on phones — back to a round (still orange) icon button. */
+  .narr-label { display: none; }
+  .reader-bar-controls .narr-btn { width: 42px; min-width: 42px; padding: 0; }
 }
 
 /* ── Inline reader (lives in the book page) ── */
@@ -497,8 +525,9 @@ a.pager-btn:active { transform: scale(.96); }
   background: #eae4f6; color: var(--ink);
 }
 .reader-embed:not(.is-fullscreen) .reader-bar-controls button:hover { background: #ddd3f0; }
-.reader-embed:not(.is-fullscreen) .reader-bar-controls .narr-on,
-.reader-embed:not(.is-fullscreen) .reader-bar-controls .narr-on:hover { color: #fff; }
+/* The narration pill keeps its orange in the light inline bar too. */
+.reader-embed:not(.is-fullscreen) .reader-bar-controls .narr-btn { background: var(--orange); color: #fff; }
+.reader-embed:not(.is-fullscreen) .reader-bar-controls .narr-btn:hover { background: #ea6a0a; }
 
 /* Fullscreen: mirror .reader-overlay, and lift the control bar back above the book.
    `width: auto` overrides the inline width so `inset: 0` fills the whole viewport (an
@@ -515,6 +544,22 @@ a.pager-btn:active { transform: scale(.96); }
 /* Grow the book to fill the fullscreen viewport — much larger than the inline size,
    capped at 1800px wide (a two-page spread ≈ 900px per page) so it never gets unwieldy. */
 .reader-embed.is-fullscreen .native-reader { width: min(1800px, 100%); height: min(96vh, 1150px); }
+
+/* Fit the reader's height to the book itself: when the spread is width-limited the
+   engine renders it at (width / spread-ratio) tall, well short of the fixed height
+   caps above — the control bar then floated far below the book. --book-ar (set inline
+   per book, see BookReader) turns the container width into that rendered height, plus
+   ~84px for the bar + its gap. Browsers without container-query units keep the fixed
+   caps above. */
+@supports (width: 1cqw) {
+  .reader-embed { container-type: inline-size; }
+  .reader-embed:not(.is-fullscreen) .native-reader {
+    height: min(72vh, 640px, calc(100cqw / var(--book-ar, 2) + 84px));
+  }
+  .reader-embed.is-fullscreen .native-reader {
+    height: min(96vh, 1150px, calc(min(1800px, 100cqw) / var(--book-ar, 2) + 84px));
+  }
+}
 
 /* ── Featured book ── */
 .featured { max-width: 1000px; margin: 8px auto 0; padding: 8px 16px; }

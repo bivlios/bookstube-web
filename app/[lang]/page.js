@@ -1,12 +1,11 @@
 import { getLibrary, getBook } from '@/lib/api';
 import { makeT, dir, LOCALES } from '@/lib/i18n';
 import { topicKey, topicByTag } from '@/lib/topics';
-import { libName, libSlug, libParams, homeLibFor, FEATURED_BOOKS } from '@/lib/libraries';
+import { libName, libSlug, libIntro, libParams, homeLibFor, featuredFor } from '@/lib/libraries';
 import { OG_IMAGE } from '@/lib/cta';
 import Hero from '@/components/Hero';
 import LibrarySwitcher from '@/components/LibrarySwitcher';
 import TopicCards from '@/components/TopicCards';
-import LangFilter from '@/components/LangFilter';
 import FeaturedBook from '@/components/FeaturedBook';
 import AnimatedLibrary from '@/components/AnimatedLibrary';
 import ParentValue from '@/components/ParentValue';
@@ -63,13 +62,13 @@ export default async function LibraryHome({ params, searchParams }) {
       : t(`bookstubeHome.booksIn_${bookLang}`);
     return (
       <main dir={dir(lang)}>
-        {/* While a language filter is active the facet reflects the filtered set,
-            so only pass it on the unfiltered view — pills must not vanish mid-use. */}
-        <LangFilter t={t} active={bookLang} basePath={`/${lang}`} topic={topic}
-                    availableLangs={bookLang ? undefined : data.availableLangs} />
         <TopicCards t={t} lang={lang} active={topic} availableTags={data.availableTags} />
         <MakeBookBanner lang={lang} t={t} />
-        <LibrarySwitcher lang={lang} active={libSlug(homeLib)} t={t} />
+        {/* While a language filter is active the facet reflects the filtered set,
+            so only pass it on the unfiltered view — pills must not vanish mid-use. */}
+        <LibrarySwitcher lang={lang} active={libSlug(homeLib)} t={t}
+                         basePath={`/${lang}`} bookLang={bookLang} topic={topic}
+                         availableLangs={bookLang ? undefined : data.availableLangs} />
         <section id="library" className="library">
           <h2 className="section-title">
             {heading}
@@ -109,13 +108,14 @@ export default async function LibraryHome({ params, searchParams }) {
   const primary = hasLangBooks ? langData.books : data.books;
   const primaryTotal = hasLangBooks ? langData.total : data.total;
 
-  // Featured: try the curated FEATURED_BOOKS list first (lib/libraries.js), in order,
-  // preferring an entry whose orig_language matches the visitor's language; falls back
-  // to the first resolving entry, then to the old heuristic (first same-language book
-  // with a summary) if the list is empty or every entry has gone stale.
+  // Featured: try this language's home collection's curated `featured` list first
+  // (lib/libraries.js), in order, preferring an entry whose orig_language matches the
+  // visitor's language; falls back to the first resolving entry, then to the old
+  // heuristic (first same-language book with a summary) if the list is empty or every
+  // entry has gone stale.
   let featured = null;
   let firstResolvedFeatured = null;
-  for (const idOrSlug of FEATURED_BOOKS) {
+  for (const idOrSlug of featuredFor(lang)) {
     const candidate = await getBook(idOrSlug, { seo: 1 }).catch(() => null);
     if (!candidate) continue;
     if (!firstResolvedFeatured) firstResolvedFeatured = candidate;
@@ -131,17 +131,21 @@ export default async function LibraryHome({ params, searchParams }) {
   return (
     <main dir={dir(lang)}>
       <Hero t={t} lang={lang} />
-      <LangFilter t={t} basePath={`/${lang}`} availableLangs={data.availableLangs} />
       {featured ? <FeaturedBook data={featured} lang={lang} t={t} /> : null}
       <TopicCards t={t} lang={lang} availableTags={data.availableTags} />
       <MakeBookBanner lang={lang} t={t} />
-      <LibrarySwitcher lang={lang} active={libSlug(homeLib)} t={t} />
+      <LibrarySwitcher lang={lang} active={libSlug(homeLib)} t={t}
+                       basePath={`/${lang}`} availableLangs={data.availableLangs} />
 
       <section id="library" className="library">
         <h2 className="section-title">
           {libName(homeLib, lang)}
           {primaryTotal ? <span className="lib-count">{primaryTotal} {t('tagLibrary.books')}</span> : null}
         </h2>
+        {/* The home collection's intro (lib/libraries.js) — the home page serves that
+            collection's books, so its SEO copy must show here too, not only on the
+            /taglib/ page (which canonicalizes here when the collection is home). */}
+        {libIntro(homeLib, lang) ? <p className="topic-intro">{libIntro(homeLib, lang)}</p> : null}
         {primary.length ? (
           <AnimatedLibrary
             lang={lang}

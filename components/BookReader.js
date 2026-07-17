@@ -230,6 +230,10 @@ export default function BookReader({
     <div
       ref={embedRef}
       className={`reader-embed${fullscreen ? ' is-fullscreen' : ''}`}
+      // The open book's spread aspect-ratio (two pages side by side) — the CSS uses it
+      // to shrink the reader's height to the book's own rendered height, so the control
+      // bar sits right under the book instead of at the bottom of a fixed-height box.
+      style={{ '--book-ar': (w * 2) / h }}
       onClick={onBackdrop}
       role={fullscreen ? 'dialog' : 'group'}
       aria-modal={fullscreen ? 'true' : undefined}
@@ -315,7 +319,8 @@ export default function BookReader({
                 aria-label={listenLabel || 'Listen'}
                 title={listenLabel || 'Listen'}
               >
-                {narrating ? '⏸' : '🔊'}
+                {narrating ? <PauseIcon /> : <SpeakerIcon />}
+                <span className="narr-label">{listenLabel || 'Listen'}</span>
               </button>
             ) : null}
             <button
@@ -331,6 +336,25 @@ export default function BookReader({
         </div>
       </div>
     </div>
+  );
+}
+
+// White SVG glyphs for the narration toggle — an emoji speaker rendered dark and got
+// lost against the bar, and emoji can't be recolored; these follow `currentColor`.
+function SpeakerIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+      <path d="M3 9v6h4l5 5V4L7 9H3z" />
+      <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
+      <path d="M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+    </svg>
+  );
+}
+function PauseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+      <path d="M6 5h4v14H6zM14 5h4v14h-4z" />
+    </svg>
   );
 }
 

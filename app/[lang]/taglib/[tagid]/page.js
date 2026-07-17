@@ -1,5 +1,5 @@
 import { getLibrary } from '@/lib/api';
-import { makeT, dir } from '@/lib/i18n';
+import { makeT, dir, LOCALES } from '@/lib/i18n';
 import { topicKey } from '@/lib/topics';
 import { libBySlug, libName, libSlug, libIntro, libInLang, libParams, isHomeLib } from '@/lib/libraries';
 import { OG_IMAGE } from '@/lib/cta';
@@ -41,6 +41,7 @@ export default async function TagLibrary({ params, searchParams }) {
   const { lang, tagid } = params;
   const t = makeT(lang);
   const topic = searchParams?.topic || undefined;
+  const bookLang = LOCALES.includes(searchParams?.bookLang) ? searchParams.bookLang : undefined;
   const skip = Number(searchParams?.skip) || 0;
 
   // The URL segment is a friendly slug (legacy raw ids still resolve). Curated entries
@@ -51,7 +52,7 @@ export default async function TagLibrary({ params, searchParams }) {
   const slug = lib ? libSlug(lib) : tagid;
   const coll = { ...libParams(lib), lib: libId };
 
-  const data = (await getLibrary({ ...coll, lang, topic, skip, limit: LIMIT })) || {
+  const data = (await getLibrary({ ...coll, lang, topic, bookLang, skip, limit: LIMIT })) || {
     books: [],
     total: 0,
     library: null,
@@ -66,7 +67,11 @@ export default async function TagLibrary({ params, searchParams }) {
     <main dir={dir(lang)}>
       <TopicChips t={t} active={topic} basePath={base} availableTags={data.availableTags} />
       <MakeBookBanner lang={lang} t={t} />
-      <LibrarySwitcher lang={lang} active={slug} t={t} />
+      {/* While a language filter is active the facet reflects the filtered set,
+          so only pass it on the unfiltered view — pills must not vanish mid-use. */}
+      <LibrarySwitcher lang={lang} active={slug} t={t}
+                       basePath={base} bookLang={bookLang} topic={topic}
+                       availableLangs={bookLang ? undefined : data.availableLangs} />
       <section id="library" className="library">
         <h1 className="section-title">
           {heading}
@@ -82,6 +87,7 @@ export default async function TagLibrary({ params, searchParams }) {
             tags={coll.tags}
             match={coll.match}
             topic={topic}
+            bookLang={bookLang}
             initialBooks={data.books}
             total={data.total}
             limit={LIMIT}
