@@ -1,7 +1,7 @@
 import { getLibrary } from '@/lib/api';
 import { makeT, dir } from '@/lib/i18n';
 import { topicKey } from '@/lib/topics';
-import { libBySlug, libName, libSlug, libIntro, libInLang } from '@/lib/libraries';
+import { libBySlug, libName, libSlug, libIntro, libInLang, libTagsParam } from '@/lib/libraries';
 import { OG_IMAGE } from '@/lib/cta';
 import LibrarySwitcher from '@/components/LibrarySwitcher';
 import TopicChips from '@/components/TopicChips';
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }) {
   const lib = libBySlug(params.tagid);
   const libId = lib?.id || params.tagid;
   const canonicalSeg = lib ? libSlug(lib) : params.tagid;
-  const data = await getLibrary({ lib: libId, limit: 1 }).catch(() => null);
+  const data = await getLibrary({ lib: libId, tags: libTagsParam(lib) || undefined, limit: 1 }).catch(() => null);
   const libTitle = (lib && libName(lib, params.lang)) || data?.library?.title;
   const title = libTitle ? `${libTitle} — BooksTube` : t('meta.bookstubeTitle');
   const description = (lib && libIntro(lib, params.lang)) || t('meta.bookstubeDesc');
@@ -38,13 +38,15 @@ export default async function TagLibrary({ params, searchParams }) {
   const topic = searchParams?.topic || undefined;
   const skip = Number(searchParams?.skip) || 0;
 
-  // The URL segment is a friendly slug (legacy raw ids still resolve); the read API wants
-  // the real TagLibraries._id. URLs keep the slug, everything data-facing uses the id.
+  // The URL segment is a friendly slug (legacy raw ids still resolve). Curated entries
+  // carry their own `tags` (the API needs no TagLibraries doc); unknown segments fall
+  // back to a raw `lib` id lookup so legacy /taglib/<id> links keep working.
   const lib = libBySlug(tagid);
   const libId = lib?.id || tagid;
   const slug = lib ? libSlug(lib) : tagid;
+  const tags = libTagsParam(lib);
 
-  const data = (await getLibrary({ lib: libId, lang, topic, skip, limit: LIMIT })) || {
+  const data = (await getLibrary({ lib: libId, tags: tags || undefined, lang, topic, skip, limit: LIMIT })) || {
     books: [],
     total: 0,
     library: null,
@@ -72,6 +74,7 @@ export default async function TagLibrary({ params, searchParams }) {
           <AnimatedLibrary
             lang={lang}
             lib={libId}
+            tags={tags}
             topic={topic}
             initialBooks={data.books}
             total={data.total}

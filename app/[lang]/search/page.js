@@ -1,6 +1,6 @@
 import { searchBooks, getLibrary } from '@/lib/api';
 import { makeT, dir } from '@/lib/i18n';
-import { libBySlug, libName, libSlug } from '@/lib/libraries';
+import { libBySlug, libName, libSlug, libTagsParam } from '@/lib/libraries';
 import BookCard from '@/components/BookCard';
 import Cta from '@/components/Cta';
 
@@ -13,12 +13,12 @@ import Cta from '@/components/Cta';
 const LIMIT = 60;
 const FALLBACK_PAGES = 8; // ×60 = 480 newest books — covers the whole library today
 
-const fallbackSearch = async (lib, q) => {
+const fallbackSearch = async (coll, q) => {
   const needle = q.toLowerCase();
   const fetched = [];
   let total = Infinity;
   for (let skip = 0; skip < FALLBACK_PAGES * LIMIT && skip < total; skip += LIMIT) {
-    const page = await getLibrary({ lib, skip, limit: LIMIT }).catch(() => null);
+    const page = await getLibrary({ ...coll, skip, limit: LIMIT }).catch(() => null);
     if (!page || !page.books?.length) break;
     total = page.total || 0;
     fetched.push(...page.books);
@@ -43,14 +43,16 @@ export default async function SearchPage({ params, searchParams }) {
   const t = makeT(lang);
   const q = (searchParams?.q || '').trim();
 
-  // The header form sends the taglib URL slug; the API wants the TagLibraries id.
+  // The header form sends the taglib URL slug. Curated entries carry their own tags
+  // (passed to the API directly); unknown values fall back to a raw legacy lib id.
   const libEntry = searchParams?.lib ? libBySlug(searchParams.lib) : null;
-  const libId = libEntry?.id || searchParams?.lib || undefined;
+  const coll = { lib: libEntry?.id || searchParams?.lib || undefined,
+                 tags: libTagsParam(libEntry) || undefined };
 
   let data = null;
   if (q.length >= 2) {
-    data = await searchBooks({ q, lib: libId, limit: LIMIT }).catch(() => null);
-    if (!data) data = await fallbackSearch(libId, q).catch(() => null);
+    data = await searchBooks({ q, ...coll, limit: LIMIT }).catch(() => null);
+    if (!data) data = await fallbackSearch(coll, q).catch(() => null);
   }
   const books = data?.books || [];
   const scopeName = libEntry ? libName(libEntry, lang) : null;

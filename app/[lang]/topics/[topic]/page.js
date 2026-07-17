@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getLibrary } from '@/lib/api';
 import { makeT, dir, LOCALES } from '@/lib/i18n';
-import { topicByTag } from '@/lib/topics';
+import { topicByTag, topicPool } from '@/lib/topics';
 import { OG_IMAGE } from '@/lib/cta';
 import AnimatedLibrary from '@/components/AnimatedLibrary';
 import MakeBookBanner from '@/components/MakeBookBanner';
@@ -16,7 +16,7 @@ export const revalidate = 300;
 const LIMIT = 60;
 
 const fetchTopic = (topic, opts = {}) =>
-  getLibrary({ lib: topic.lib, topic: topic.tag, ...opts }).catch(() => null);
+  getLibrary({ ...topicPool(topic), topic: topic.tag, ...opts }).catch(() => null);
 
 export async function generateMetadata({ params }) {
   const topic = topicByTag(decodeURIComponent(params.topic));
@@ -60,6 +60,7 @@ export default async function TopicPage({ params, searchParams }) {
           <AnimatedLibrary
             lang={lang}
             lib={topic.lib}
+            tags={topicPool(topic).tags}
             topic={topic.tag}
             initialBooks={data.books}
             total={data.total}

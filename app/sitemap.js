@@ -1,13 +1,13 @@
 import { getBooksIndex, getLibrary } from '@/lib/api';
 import { LOCALES } from '@/lib/i18n';
 import { SITE_URL } from '@/lib/cta';
-import { LIBRARIES, libSlug, libInLang } from '@/lib/libraries';
-import { TOPICS } from '@/lib/topics';
+import { LIBRARIES, libSlug, libInLang, DEFAULT_POOL_TAGS } from '@/lib/libraries';
+import { TOPICS, topicPool } from '@/lib/topics';
 
 export const revalidate = 3600;
 
 export default async function sitemap() {
-  const data = await getBooksIndex({ limit: 5000 }).catch(() => ({ books: [] }));
+  const data = await getBooksIndex({ tags: DEFAULT_POOL_TAGS, limit: 5000 }).catch(() => ({ books: [] }));
   const books = data?.books || [];
   const now = new Date();
 
@@ -31,7 +31,7 @@ export default async function sitemap() {
   // noindex, so listing them would just send crawlers to pages we exclude).
   const topicCounts = await Promise.all(
     TOPICS.map((tp) =>
-      getLibrary({ lib: tp.lib, topic: tp.tag, limit: 1 })
+      getLibrary({ ...topicPool(tp), topic: tp.tag, limit: 1 })
         .then((d) => ({ tp, total: d?.total || 0 }))
         .catch(() => ({ tp, total: 0 }))
     )

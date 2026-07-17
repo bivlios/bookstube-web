@@ -3,6 +3,7 @@ import { getBook, viewPingUrl } from '@/lib/api';
 import ViewPing from '@/components/ViewPing';
 import { makeT, dir } from '@/lib/i18n';
 import { tubeCta, SITE_URL } from '@/lib/cta';
+import { DEFAULT_POOL_TAGS } from '@/lib/libraries';
 import LibraryGrid from '@/components/LibraryGrid';
 import BookDetailTop from '@/components/BookDetailTop';
 import BackButton from '@/components/BackButton';
@@ -31,7 +32,8 @@ export async function generateMetadata({ params }) {
 
 export default async function BookDetail({ params }) {
   const slug = decodeURIComponent(params.slug);
-  const data = await getBook(slug, { fromTag: 'bookstube', seo: 1 }).catch(() => null);
+  // tags scope the related-books strip (fromTag = legacy param for the pre-tags API).
+  const data = await getBook(slug, { fromTag: 'bookstube', tags: DEFAULT_POOL_TAGS, seo: 1 }).catch(() => null);
   if (!data) notFound();
 
   const { book, readingMinutes, related, paragraphs } = data;

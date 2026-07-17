@@ -1,7 +1,7 @@
 import { getLibrary, getBook } from '@/lib/api';
 import { makeT, dir, LOCALES } from '@/lib/i18n';
 import { topicKey, topicByTag } from '@/lib/topics';
-import { libNameById, FEATURED_BOOKS, HOME_LIB_ID } from '@/lib/libraries';
+import { libNameById, FEATURED_BOOKS, HOME_LIB_ID, HOME_LIB_TAGS } from '@/lib/libraries';
 import { OG_IMAGE } from '@/lib/cta';
 import Hero from '@/components/Hero';
 import LibrarySwitcher from '@/components/LibrarySwitcher';
@@ -45,7 +45,10 @@ export default async function LibraryHome({ params, searchParams }) {
   const bookLang = LOCALES.includes(searchParams?.bookLang) ? searchParams.bookLang : undefined;
   const skip = Number(searchParams?.skip) || 0;
 
-  const data = (await getLibrary({ lib: HOME_LIB_ID, lang, topic, bookLang, skip, limit: LIMIT })) || {
+  // `tags` defines the collection content-side; `lib` rides along so the currently
+  // deployed API (which predates the tags param) keeps working until the Galaxy deploy.
+  const homeColl = { lib: HOME_LIB_ID, tags: HOME_LIB_TAGS || undefined };
+  const data = (await getLibrary({ ...homeColl, lang, topic, bookLang, skip, limit: LIMIT })) || {
     books: [],
     total: 0,
   };
@@ -74,6 +77,7 @@ export default async function LibraryHome({ params, searchParams }) {
             <AnimatedLibrary
               lang={lang}
               lib={HOME_LIB_ID}
+              tags={HOME_LIB_TAGS}
               topic={topic}
               bookLang={bookLang}
               initialBooks={data.books}
@@ -95,7 +99,7 @@ export default async function LibraryHome({ params, searchParams }) {
   // a dedicated server-side filtered fetch (not a client-side split of the mixed `data`
   // page above) so a full LIMIT of same-language books fills the grid, instead of whatever
   // fraction of one mixed page happened to match.
-  const langData = await getLibrary({ lib: HOME_LIB_ID, lang, bookLang: lang, skip, limit: LIMIT }).catch(() => null);
+  const langData = await getLibrary({ ...homeColl, lang, bookLang: lang, skip, limit: LIMIT }).catch(() => null);
   // Require at least a full shelf's worth before preferring the language-filtered set —
   // a couple of stray matches would otherwise starve the grid down to a near-empty page.
   const hasLangBooks = (langData?.books?.length || 0) >= 10;
@@ -139,6 +143,7 @@ export default async function LibraryHome({ params, searchParams }) {
           <AnimatedLibrary
             lang={lang}
             lib={HOME_LIB_ID}
+            tags={HOME_LIB_TAGS}
             prioritizeLang
             initialBooks={primary}
             total={primaryTotal}
