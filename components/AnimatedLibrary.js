@@ -21,7 +21,7 @@ const chunk = (arr, n) => arr.reduce((rows, b, i) => {
 // language matches the UI language first, applied to every fetched page so paging stays
 // consistent with the initial server render.
 export default function AnimatedLibrary({
-  lang, lib, tags, topic, bookLang, prioritizeLang,
+  lang, lib, tags, match, topic, bookLang, prioritizeLang,
   initialBooks, total, limit, initialSkip = 0, basePath,
 }) {
   const t = useMemo(() => makeT(lang), [lang]);
@@ -60,6 +60,7 @@ export default function AnimatedLibrary({
     const p = new URLSearchParams();
     if (lib) p.set('lib', lib);
     if (tags) p.set('tags', tags);
+    if (match) p.set('match', match);
     if (lang) p.set('lang', lang);
     if (topic) p.set('topic', topic);
     if (bookLang) p.set('bookLang', bookLang);

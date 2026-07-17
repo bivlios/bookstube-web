@@ -1,7 +1,7 @@
 import { getLibrary, getBook } from '@/lib/api';
 import { makeT, dir, LOCALES } from '@/lib/i18n';
 import { topicKey, topicByTag } from '@/lib/topics';
-import { libNameById, FEATURED_BOOKS, HOME_LIB_ID, HOME_LIB_TAGS } from '@/lib/libraries';
+import { libName, libSlug, libParams, homeLibFor, FEATURED_BOOKS } from '@/lib/libraries';
 import { OG_IMAGE } from '@/lib/cta';
 import Hero from '@/components/Hero';
 import LibrarySwitcher from '@/components/LibrarySwitcher';
@@ -45,9 +45,11 @@ export default async function LibraryHome({ params, searchParams }) {
   const bookLang = LOCALES.includes(searchParams?.bookLang) ? searchParams.bookLang : undefined;
   const skip = Number(searchParams?.skip) || 0;
 
-  // `tags` defines the collection content-side; `lib` rides along so the currently
-  // deployed API (which predates the tags param) keeps working until the Galaxy deploy.
-  const homeColl = { lib: HOME_LIB_ID, tags: HOME_LIB_TAGS || undefined };
+  // This language's home collection (first entry of its LIBRARY_ORDER). `tags`
+  // defines the content; `lib` rides along so the currently deployed API (which
+  // predates the tags param) keeps working until the Galaxy deploy.
+  const homeLib = homeLibFor(lang);
+  const homeColl = libParams(homeLib);
   const data = (await getLibrary({ ...homeColl, lang, topic, bookLang, skip, limit: LIMIT })) || {
     books: [],
     total: 0,
@@ -67,7 +69,7 @@ export default async function LibraryHome({ params, searchParams }) {
                     availableLangs={bookLang ? undefined : data.availableLangs} />
         <TopicCards t={t} lang={lang} active={topic} availableTags={data.availableTags} />
         <MakeBookBanner lang={lang} t={t} />
-        <LibrarySwitcher lang={lang} activeId={HOME_LIB_ID} t={t} />
+        <LibrarySwitcher lang={lang} active={libSlug(homeLib)} t={t} />
         <section id="library" className="library">
           <h2 className="section-title">
             {heading}
@@ -76,8 +78,9 @@ export default async function LibraryHome({ params, searchParams }) {
           {data.books.length ? (
             <AnimatedLibrary
               lang={lang}
-              lib={HOME_LIB_ID}
-              tags={HOME_LIB_TAGS}
+              lib={homeColl.lib}
+              tags={homeColl.tags}
+              match={homeColl.match}
               topic={topic}
               bookLang={bookLang}
               initialBooks={data.books}
@@ -132,18 +135,19 @@ export default async function LibraryHome({ params, searchParams }) {
       {featured ? <FeaturedBook data={featured} lang={lang} t={t} /> : null}
       <TopicCards t={t} lang={lang} availableTags={data.availableTags} />
       <MakeBookBanner lang={lang} t={t} />
-      <LibrarySwitcher lang={lang} activeId={HOME_LIB_ID} t={t} />
+      <LibrarySwitcher lang={lang} active={libSlug(homeLib)} t={t} />
 
       <section id="library" className="library">
         <h2 className="section-title">
-          {libNameById(HOME_LIB_ID, lang)}
+          {libName(homeLib, lang)}
           {primaryTotal ? <span className="lib-count">{primaryTotal} {t('tagLibrary.books')}</span> : null}
         </h2>
         {primary.length ? (
           <AnimatedLibrary
             lang={lang}
-            lib={HOME_LIB_ID}
-            tags={HOME_LIB_TAGS}
+            lib={homeColl.lib}
+            tags={homeColl.tags}
+            match={homeColl.match}
             prioritizeLang
             initialBooks={primary}
             total={primaryTotal}

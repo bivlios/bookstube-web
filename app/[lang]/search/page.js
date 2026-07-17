@@ -1,6 +1,6 @@
 import { searchBooks, getLibrary } from '@/lib/api';
 import { makeT, dir } from '@/lib/i18n';
-import { libBySlug, libName, libSlug, libTagsParam } from '@/lib/libraries';
+import { libBySlug, libName, libSlug, libParams } from '@/lib/libraries';
 import BookCard from '@/components/BookCard';
 import Cta from '@/components/Cta';
 
@@ -46,8 +46,7 @@ export default async function SearchPage({ params, searchParams }) {
   // The header form sends the taglib URL slug. Curated entries carry their own tags
   // (passed to the API directly); unknown values fall back to a raw legacy lib id.
   const libEntry = searchParams?.lib ? libBySlug(searchParams.lib) : null;
-  const coll = { lib: libEntry?.id || searchParams?.lib || undefined,
-                 tags: libTagsParam(libEntry) || undefined };
+  const coll = { ...libParams(libEntry), lib: libEntry?.id || searchParams?.lib || undefined };
 
   let data = null;
   if (q.length >= 2) {

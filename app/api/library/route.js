@@ -8,7 +8,7 @@ export const revalidate = 300;
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const opts = {};
-  ['lib', 'tags', 'lang', 'topic', 'bookLang', 'skip', 'limit'].forEach((k) => {
+  ['lib', 'tags', 'match', 'lang', 'topic', 'bookLang', 'skip', 'limit'].forEach((k) => {
     const v = searchParams.get(k);
     if (v) opts[k] = v;
   });

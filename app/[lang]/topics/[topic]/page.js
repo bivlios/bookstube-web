@@ -61,6 +61,7 @@ export default async function TopicPage({ params, searchParams }) {
             lang={lang}
             lib={topic.lib}
             tags={topicPool(topic).tags}
+            match={topicPool(topic).match}
             topic={topic.tag}
             initialBooks={data.books}
             total={data.total}

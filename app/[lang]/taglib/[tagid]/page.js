@@ -1,7 +1,7 @@
 import { getLibrary } from '@/lib/api';
 import { makeT, dir } from '@/lib/i18n';
 import { topicKey } from '@/lib/topics';
-import { libBySlug, libName, libSlug, libIntro, libInLang, libTagsParam } from '@/lib/libraries';
+import { libBySlug, libName, libSlug, libIntro, libInLang, libParams, isHomeLib } from '@/lib/libraries';
 import { OG_IMAGE } from '@/lib/cta';
 import LibrarySwitcher from '@/components/LibrarySwitcher';
 import TopicChips from '@/components/TopicChips';
@@ -17,14 +17,19 @@ export async function generateMetadata({ params }) {
   const lib = libBySlug(params.tagid);
   const libId = lib?.id || params.tagid;
   const canonicalSeg = lib ? libSlug(lib) : params.tagid;
-  const data = await getLibrary({ lib: libId, tags: libTagsParam(lib) || undefined, limit: 1 }).catch(() => null);
+  const data = await getLibrary({ ...libParams(lib), lib: libId, limit: 1 }).catch(() => null);
   const libTitle = (lib && libName(lib, params.lang)) || data?.library?.title;
   const title = libTitle ? `${libTitle} — BooksTube` : t('meta.bookstubeTitle');
   const description = (lib && libIntro(lib, params.lang)) || t('meta.bookstubeDesc');
   return {
     title,
     description,
-    alternates: { canonical: `/${params.lang}/taglib/${canonicalSeg}` },
+    // A collection that is this language's home duplicates "/" — canonicalize there.
+    alternates: {
+      canonical: lib && isHomeLib(lib, params.lang)
+        ? `/${params.lang}`
+        : `/${params.lang}/taglib/${canonicalSeg}`,
+    },
     openGraph: { title, description, type: 'website', images: [OG_IMAGE] },
     // A collection viewed in a language it isn't scoped to (lib.langs) still renders
     // for direct links, but shouldn't be indexed — it's unlinked and unsitemapped.
@@ -44,9 +49,9 @@ export default async function TagLibrary({ params, searchParams }) {
   const lib = libBySlug(tagid);
   const libId = lib?.id || tagid;
   const slug = lib ? libSlug(lib) : tagid;
-  const tags = libTagsParam(lib);
+  const coll = { ...libParams(lib), lib: libId };
 
-  const data = (await getLibrary({ lib: libId, tags: tags || undefined, lang, topic, skip, limit: LIMIT })) || {
+  const data = (await getLibrary({ ...coll, lang, topic, skip, limit: LIMIT })) || {
     books: [],
     total: 0,
     library: null,
@@ -61,7 +66,7 @@ export default async function TagLibrary({ params, searchParams }) {
     <main dir={dir(lang)}>
       <TopicChips t={t} active={topic} basePath={base} availableTags={data.availableTags} />
       <MakeBookBanner lang={lang} t={t} />
-      <LibrarySwitcher lang={lang} activeId={libId} t={t} />
+      <LibrarySwitcher lang={lang} active={slug} t={t} />
       <section id="library" className="library">
         <h1 className="section-title">
           {heading}
@@ -74,7 +79,8 @@ export default async function TagLibrary({ params, searchParams }) {
           <AnimatedLibrary
             lang={lang}
             lib={libId}
-            tags={tags}
+            tags={coll.tags}
+            match={coll.match}
             topic={topic}
             initialBooks={data.books}
             total={data.total}
