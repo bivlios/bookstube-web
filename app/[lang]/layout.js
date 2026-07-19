@@ -6,6 +6,7 @@ import Header from '@/components/Header';
 import HeaderHeightSync from '@/components/HeaderHeightSync';
 import Analytics from '@/components/Analytics';
 import GARouteTracker from '@/components/GARouteTracker';
+import FeedbackFloat from '@/components/FeedbackFloat';
 
 // This is the root layout (all routes are locale-prefixed via middleware).
 export function generateStaticParams() {
@@ -34,7 +35,14 @@ export default function RootLayout({ children, params }) {
         <Header lang={lang} t={t} />
         <HeaderHeightSync />
         {children}
-        <footer className="site-footer">© {new Date().getFullYear()} BooksTube · booksgiant.com</footer>
+        <FeedbackFloat lang={lang} t={t} />
+        <footer className="site-footer">
+          <span>© {new Date().getFullYear()} BooksTube · booksgiant.com</span>
+          <span className="site-footer-separator" aria-hidden="true">·</span>
+          <a className="site-footer-feedback" href={`/${lang}/feedback`}>
+            {t('feedbackPage.footerLink')}
+          </a>
+        </footer>
       </body>
     </html>
   );
