@@ -52,11 +52,18 @@ export default async function TagLibrary({ params, searchParams }) {
   const slug = lib ? libSlug(lib) : tagid;
   const coll = { ...libParams(lib), lib: libId };
 
-  const data = (await getLibrary({ ...coll, lang, topic, bookLang, skip, limit: LIMIT })) || {
+  const [pageData, unfilteredLanguageData] = await Promise.all([
+    getLibrary({ ...coll, lang, topic, bookLang, skip, limit: LIMIT }),
+    bookLang
+      ? getLibrary({ ...coll, lang, topic, skip: 0, limit: LIMIT }).catch(() => null)
+      : Promise.resolve(null),
+  ]);
+  const data = pageData || {
     books: [],
     total: 0,
     library: null,
   };
+  const languageData = unfilteredLanguageData || data;
 
   const base = `/${lang}/taglib/${slug}`;
   const heading = topic
@@ -67,11 +74,10 @@ export default async function TagLibrary({ params, searchParams }) {
     <main dir={dir(lang)}>
       <TopicChips t={t} active={topic} basePath={base} availableTags={data.availableTags} />
       <MakeBookBanner lang={lang} t={t} />
-      {/* While a language filter is active the facet reflects the filtered set,
-          so only pass it on the unfiltered view — pills must not vanish mid-use. */}
       <LibrarySwitcher lang={lang} active={slug} t={t}
                        basePath={base} bookLang={bookLang} topic={topic}
-                       availableLangs={bookLang ? undefined : data.availableLangs} />
+                       availableLangs={languageData.availableLangs}
+                       books={languageData.books} />
       <section id="library" className="library">
         <h1 className="section-title">
           {heading}

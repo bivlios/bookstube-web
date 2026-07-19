@@ -10,13 +10,20 @@ import { LOCALES } from '@/lib/i18n';
 // When `basePath` is given, a second pill group filters the grid by BOOK language —
 // plain ?bookLang= GET links (crawlable, no client JS) using the read API's
 // orig_language filter, living on the bar right next to the collections it filters.
-// `availableLangs` (whole-library facet from the API) hides languages with no books;
-// when absent or empty (older API) all locales show. `bookLang` is the active filter
-// and `topic` is preserved in the links.
-export default function LibrarySwitcher({ lang, active, t, basePath, bookLang, topic, availableLangs }) {
+// `availableLangs` (whole-library facet from the API) hides languages with no books.
+// Merge it with the current page's books so a stale/incomplete cached facet cannot
+// hide a language that is visibly present. When neither signal is available (older
+// API), all locales remain available. `bookLang` is the active filter and `topic`
+// is preserved in the links.
+export default function LibrarySwitcher({
+  lang, active, t, basePath, bookLang, topic, availableLangs, books,
+}) {
   const libs = librariesFor(lang);
-  const langs = Array.isArray(availableLangs) && availableLangs.length
-    ? LOCALES.filter((code) => availableLangs.includes(code))
+  const facetLangs = Array.isArray(availableLangs) ? availableLangs : [];
+  const pageLangs = Array.isArray(books) ? books.map((book) => book.orig_language) : [];
+  const knownLangs = new Set([...facetLangs, ...pageLangs]);
+  const langs = knownLangs.size
+    ? LOCALES.filter((code) => knownLangs.has(code))
     : LOCALES;
   const showLangs = !!basePath && !!t && langs.length >= 2;
   if (libs.length < 2 && !showLangs) return null;

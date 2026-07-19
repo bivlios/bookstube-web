@@ -19,9 +19,6 @@ export default function Hero({ t, lang }) {
             <a className="btn btn-cta" href={`/${lang}/create`}>
               {t('bookstubeHome.heroWriteCta')}
             </a>
-            <a className="btn btn-ghost" href="#topics">
-              {t('bookstubeHome.heroSecondaryCta')}
-            </a>
           </div>
         </div>
 

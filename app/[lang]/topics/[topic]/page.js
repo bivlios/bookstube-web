@@ -51,6 +51,10 @@ export default async function TopicPage({ params, searchParams }) {
   return (
     <main dir={dir(lang)}>
       <section id="library" className="library">
+        <a href={`/${lang}`} className="back back-btn topic-library-back">
+          <span className="back-arrow" aria-hidden="true">←</span>
+          {t('bookPage.backToLibrary')}
+        </a>
         <h1 className="section-title">
           <span aria-hidden="true">{topic.emoji}</span> {t(`bookstubeHome.${topic.key}`)}
           {data.total ? <span className="lib-count">{data.total} {t('tagLibrary.books')}</span> : null}

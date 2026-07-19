@@ -375,6 +375,8 @@ a.pager-btn:active { transform: scale(.96); }
 .back-btn:hover { transform: translateY(-1px); background: #f6f3ff; box-shadow: 0 6px 16px rgba(79, 70, 229, 0.18); }
 .back-btn .back-arrow { font-size: 18px; line-height: 1; }
 [dir="rtl"] .back-btn .back-arrow { transform: scaleX(-1); }
+.topic-library-back { margin-bottom: 0; }
+.topic-library-back + .section-title { margin-top: 16px; }
 .detail-top { display: flex; gap: 28px; flex-wrap: wrap; }
 .detail-cover-btn {
   position: relative; display: inline-block; flex: 0 0 auto;

@@ -1,15 +1,18 @@
 import { notFound } from 'next/navigation';
-import { getBook, viewPingUrl } from '@/lib/api';
+import { getBook, getLibrary, viewPingUrl } from '@/lib/api';
 import ViewPing from '@/components/ViewPing';
 import { makeT, dir } from '@/lib/i18n';
 import { tubeCta, SITE_URL } from '@/lib/cta';
 import { DEFAULT_POOL_TAGS } from '@/lib/libraries';
+import { rankRelatedBooks, relatedQueryTags } from '@/lib/related';
 import LibraryGrid from '@/components/LibraryGrid';
 import BookDetailTop from '@/components/BookDetailTop';
 import BackButton from '@/components/BackButton';
 import StoryText from '@/components/StoryText';
 
 export const revalidate = 600;
+const RELATED_LIMIT = 8;
+const RELATED_CANDIDATE_LIMIT = 60;
 
 const bookDir = (lang) => (lang === 'he' || lang === 'ar' ? 'rtl' : 'ltr');
 
@@ -32,14 +35,40 @@ export async function generateMetadata({ params }) {
 
 export default async function BookDetail({ params }) {
   const slug = decodeURIComponent(params.slug);
-  // tags scope the related-books strip (fromTag = legacy param for the pre-tags API).
-  const data = await getBook(slug, { fromTag: 'bookstube', tags: DEFAULT_POOL_TAGS, seo: 1 }).catch(() => null);
+  // The API detail payload supplies the book and full story text. Related books
+  // are selected below so their language and metadata can match this book.
+  const data = await getBook(slug, { seo: 1 }).catch(() => null);
   if (!data) notFound();
 
-  const { book, readingMinutes, related, paragraphs } = data;
+  const { book, readingMinutes, paragraphs } = data;
   const { lang } = params;
   const t = makeT(lang);
   const bDir = bookDir(book.orig_language);
+
+  // Build the strip from books that share the current book's original language.
+  // Prefer candidates sharing real subject tags; if that pool is too small, fill
+  // from the broad BooksTube catalog. Ranking removes the current book, rewards
+  // shared topics/age/author, and varies deterministic tie-breaks per book.
+  const queryTags = relatedQueryTags(book);
+  const topicalData = queryTags.length
+    ? await getLibrary({
+      tags: queryTags.join(','),
+      bookLang: book.orig_language,
+      limit: RELATED_CANDIDATE_LIMIT,
+    }).catch(() => null)
+    : null;
+  let candidates = topicalData?.books || [];
+  let related = rankRelatedBooks(book, candidates, RELATED_LIMIT);
+
+  if (related.length < RELATED_LIMIT) {
+    const fallbackData = await getLibrary({
+      tags: DEFAULT_POOL_TAGS,
+      bookLang: book.orig_language,
+      limit: RELATED_CANDIDATE_LIMIT,
+    }).catch(() => null);
+    candidates = [...candidates, ...(fallbackData?.books || [])];
+    related = rankRelatedBooks(book, candidates, RELATED_LIMIT);
+  }
 
   const jsonLd = {
     '@context': 'https://schema.org',

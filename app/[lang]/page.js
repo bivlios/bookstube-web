@@ -49,10 +49,17 @@ export default async function LibraryHome({ params, searchParams }) {
   // predates the tags param) keeps working until the Galaxy deploy.
   const homeLib = homeLibFor(lang);
   const homeColl = libParams(homeLib);
-  const data = (await getLibrary({ ...homeColl, lang, topic, bookLang, skip, limit: LIMIT })) || {
+  const [pageData, unfilteredLanguageData] = await Promise.all([
+    getLibrary({ ...homeColl, lang, topic, bookLang, skip, limit: LIMIT }),
+    bookLang
+      ? getLibrary({ ...homeColl, lang, topic, skip: 0, limit: LIMIT }).catch(() => null)
+      : Promise.resolve(null),
+  ]);
+  const data = pageData || {
     books: [],
     total: 0,
   };
+  const languageData = unfilteredLanguageData || data;
 
   // Filtered view (topic and/or language): the API filters + paginates server-side,
   // so we just render the returned page as a single crawlable grid.
@@ -64,11 +71,10 @@ export default async function LibraryHome({ params, searchParams }) {
       <main dir={dir(lang)}>
         <TopicCards t={t} lang={lang} active={topic} availableTags={data.availableTags} />
         <MakeBookBanner lang={lang} t={t} />
-        {/* While a language filter is active the facet reflects the filtered set,
-            so only pass it on the unfiltered view — pills must not vanish mid-use. */}
         <LibrarySwitcher lang={lang} active={libSlug(homeLib)} t={t}
                          basePath={`/${lang}`} bookLang={bookLang} topic={topic}
-                         availableLangs={bookLang ? undefined : data.availableLangs} />
+                         availableLangs={languageData.availableLangs}
+                         books={languageData.books} />
         <section id="library" className="library">
           <h2 className="section-title">
             {heading}
@@ -135,7 +141,8 @@ export default async function LibraryHome({ params, searchParams }) {
       <TopicCards t={t} lang={lang} availableTags={data.availableTags} />
       <MakeBookBanner lang={lang} t={t} />
       <LibrarySwitcher lang={lang} active={libSlug(homeLib)} t={t}
-                       basePath={`/${lang}`} availableLangs={data.availableLangs} />
+                       basePath={`/${lang}`} availableLangs={data.availableLangs}
+                       books={data.books} />
 
       <section id="library" className="library">
         <h2 className="section-title">
