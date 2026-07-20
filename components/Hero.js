@@ -1,4 +1,4 @@
-import { tubeCreateAnonymCta } from '@/lib/cta';
+import { bookstubeCreateCta } from '@/lib/cta';
 import TrackedCreateLink from './TrackedCreateLink';
 
 const HERO_VIDEO_URL = 'https://s3.eu-west-1.amazonaws.com/school.booksgiant.com/video/books-tube-hero.mp4';
@@ -21,10 +21,8 @@ export default function Hero({ t, lang }) {
             </a>
             <TrackedCreateLink
               className="btn btn-cta"
-              href={tubeCreateAnonymCta(lang, 'homepage_hero')}
+              href={bookstubeCreateCta(lang, 'homepage_hero')}
               ctaLocation="homepage_hero"
-              target="_blank"
-              rel="noopener"
             >
               {t('bookstubeHome.heroWriteCta')}
             </TrackedCreateLink>

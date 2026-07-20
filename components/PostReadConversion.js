@@ -1,4 +1,4 @@
-import { tubeCreateAnonymCta } from '@/lib/cta';
+import { bookstubeCreateCta } from '@/lib/cta';
 import TrackedCreateLink from './TrackedCreateLink';
 import WeeklySignup from './WeeklySignup';
 
@@ -41,11 +41,9 @@ export default function PostReadConversion({ book, lang, t, entryPath, hasRelate
           <div className="post-read-actions">
             <TrackedCreateLink
               className="btn btn-cta"
-              href={tubeCreateAnonymCta(lang, 'book_end_cta')}
+              href={bookstubeCreateCta(lang, 'book_end_cta')}
               ctaLocation="book_end_cta"
               analytics={analytics}
-              target="_blank"
-              rel="noopener"
             >
               {t('conversion.postReadCreate')}
             </TrackedCreateLink>

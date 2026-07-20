@@ -17,10 +17,14 @@ export async function generateMetadata({ params }) {
   return { title: t('bookstubeHome.ctaTitle'), robots: { index: false } };
 }
 
-export default function CreatePage({ params }) {
+export default function CreatePage({ params, searchParams }) {
   const { lang } = params;
   const t = makeT(lang);
-  const src = tubeCreateAnonymCta(lang, 'create_page');
+  const requestedContent = String(searchParams?.utm_content || '');
+  const attributionContent = /^[a-z0-9_]{1,64}$/.test(requestedContent)
+    ? requestedContent
+    : 'create_page';
+  const src = tubeCreateAnonymCta(lang, attributionContent);
 
   return (
     <main dir={dir(lang)}>

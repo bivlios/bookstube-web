@@ -99,8 +99,6 @@ export default function BookDetailTop({ book, lang, bDir, readingMinutes, simila
               eventName="bookstube_similar_create_click"
               ctaLocation="book_top_cta"
               analytics={bookAnalytics}
-              target="_blank"
-              rel="noopener"
             >
               {t('bookPage.createSimilar')}
             </TrackedCreateLink>

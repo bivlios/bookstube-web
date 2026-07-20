@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { getBook, getLibrary, viewPingUrl } from '@/lib/api';
 import ViewPing from '@/components/ViewPing';
 import { makeT, dir } from '@/lib/i18n';
-import { tubeCreateAnonymCta, SITE_URL } from '@/lib/cta';
+import { bookstubeCreateCta, SITE_URL } from '@/lib/cta';
 import { DEFAULT_POOL_TAGS } from '@/lib/libraries';
 import { rankRelatedBooks, relatedQueryTags } from '@/lib/related';
 import LibraryGrid from '@/components/LibraryGrid';
@@ -107,7 +107,7 @@ export default async function BookDetail({ params }) {
         lang={lang}
         bDir={bDir}
         readingMinutes={readingMinutes}
-        similarHref={tubeCreateAnonymCta(lang, 'book_top_cta')}
+        similarHref={bookstubeCreateCta(lang, 'book_top_cta')}
       />
 
       {/* Full story text stays in the HTML for SEO but is visually collapsed to a

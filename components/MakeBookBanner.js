@@ -1,4 +1,4 @@
-import { tubeCreateAnonymCta } from '@/lib/cta';
+import { bookstubeCreateCta } from '@/lib/cta';
 import TrackedCreateLink from './TrackedCreateLink';
 
 // Eye-catching banner ad (recreated from the banner-make-book.jpg design) with
@@ -7,10 +7,8 @@ export default function MakeBookBanner({ lang, t }) {
   return (
     <TrackedCreateLink
       className="make-book-banner"
-      href={tubeCreateAnonymCta(lang, 'homepage_banner')}
+      href={bookstubeCreateCta(lang, 'homepage_banner')}
       ctaLocation="homepage_banner"
-      target="_blank"
-      rel="noopener"
     >
       <img src="/images/banner-mom.png" alt="" className="make-book-banner-img" />
       <span className="make-book-banner-text">
