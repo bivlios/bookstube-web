@@ -1,6 +1,7 @@
 import { makeT, dir, LOCALES } from '@/lib/i18n';
 import { tubeCreateAnonymCta } from '@/lib/cta';
 import BackButton from '@/components/BackButton';
+import TrackedCreateLink from '@/components/TrackedCreateLink';
 
 // Dedicated home for the creator embed (see components/Cta.js for why it isn't
 // inlined on content pages: the embedded app auto-focuses an input on load, and
@@ -19,7 +20,7 @@ export async function generateMetadata({ params }) {
 export default function CreatePage({ params }) {
   const { lang } = params;
   const t = makeT(lang);
-  const src = tubeCreateAnonymCta(lang, 'bookstube_create_page');
+  const src = tubeCreateAnonymCta(lang, 'create_page');
 
   return (
     <main dir={dir(lang)}>
@@ -30,9 +31,15 @@ export default function CreatePage({ params }) {
         <h1>{t('bookstubeHome.ctaTitle')}</h1>
         <p>{t('bookstubeHome.ctaText')}</p>
         <p className="cta-iframe-hint">{t('bookstubeHome.ctaIframeHint')}</p>
-        <a className="btn btn-cta create-page-mobile-cta" href={src} target="_blank" rel="noopener">
+        <TrackedCreateLink
+          className="btn btn-cta create-page-mobile-cta"
+          href={src}
+          ctaLocation="create_page_mobile"
+          target="_blank"
+          rel="noopener"
+        >
           {t('bookstubeHome.ctaButton')}
-        </a>
+        </TrackedCreateLink>
         <iframe
           className="cta-iframe"
           width="1200"

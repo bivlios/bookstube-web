@@ -1,12 +1,14 @@
 import { tubeCreateAnonymCta } from '@/lib/cta';
+import TrackedCreateLink from './TrackedCreateLink';
 
 // Eye-catching banner ad (recreated from the banner-make-book.jpg design) with
 // live translated copy so it reads correctly in RTL locales too.
 export default function MakeBookBanner({ lang, t }) {
   return (
-    <a
+    <TrackedCreateLink
       className="make-book-banner"
-      href={tubeCreateAnonymCta(lang, 'library_banner')}
+      href={tubeCreateAnonymCta(lang, 'homepage_banner')}
+      ctaLocation="homepage_banner"
       target="_blank"
       rel="noopener"
     >
@@ -16,6 +18,6 @@ export default function MakeBookBanner({ lang, t }) {
         <span>{t('bookstubeHome.ctaText')}</span>
       </span>
       <span className="btn btn-cta make-book-banner-btn">{t('bookstubeHome.ctaButton')}</span>
-    </a>
+    </TrackedCreateLink>
   );
 }

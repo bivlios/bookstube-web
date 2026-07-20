@@ -2,13 +2,15 @@ import { notFound } from 'next/navigation';
 import { getBook, getLibrary, viewPingUrl } from '@/lib/api';
 import ViewPing from '@/components/ViewPing';
 import { makeT, dir } from '@/lib/i18n';
-import { tubeCta, SITE_URL } from '@/lib/cta';
+import { tubeCreateAnonymCta, SITE_URL } from '@/lib/cta';
 import { DEFAULT_POOL_TAGS } from '@/lib/libraries';
 import { rankRelatedBooks, relatedQueryTags } from '@/lib/related';
 import LibraryGrid from '@/components/LibraryGrid';
 import BookDetailTop from '@/components/BookDetailTop';
 import BackButton from '@/components/BackButton';
 import StoryText from '@/components/StoryText';
+import BookOpenTracker from '@/components/BookOpenTracker';
+import PostReadConversion from '@/components/PostReadConversion';
 
 export const revalidate = 600;
 const RELATED_LIMIT = 8;
@@ -44,6 +46,13 @@ export default async function BookDetail({ params }) {
   const { lang } = params;
   const t = makeT(lang);
   const bDir = bookDir(book.orig_language);
+  const bookPath = `/${lang}/books/${encodeURIComponent(book.slug || book.bookId)}`;
+  const bookAnalytics = {
+    book_id: book.bookId,
+    book_title: book.title,
+    category: book.topics?.[0] || '',
+    language: book.orig_language || lang,
+  };
 
   // Build the strip from books that share the current book's original language.
   // Prefer candidates sharing real subject tags; if that pool is too small, fill
@@ -89,6 +98,7 @@ export default async function BookDetail({ params }) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <ViewPing url={viewPingUrl(book.bookId)} bookId={book.bookId} />
+      <BookOpenTracker analytics={bookAnalytics} />
 
       <BackButton lang={lang} label={t('bookPage.backToLibrary')} />
 
@@ -97,7 +107,7 @@ export default async function BookDetail({ params }) {
         lang={lang}
         bDir={bDir}
         readingMinutes={readingMinutes}
-        similarHref={tubeCta('book_detail_similar')}
+        similarHref={tubeCreateAnonymCta(lang, 'book_top_cta')}
       />
 
       {/* Full story text stays in the HTML for SEO but is visually collapsed to a
@@ -112,8 +122,16 @@ export default async function BookDetail({ params }) {
         />
       ) : null}
 
+      <PostReadConversion
+        book={book}
+        lang={lang}
+        t={t}
+        entryPath={bookPath}
+        hasRelated={Boolean(related?.length)}
+      />
+
       {related?.length ? (
-        <section className="related">
+        <section className="related" id="related-books">
           <h2>{t('bookPage.related')}</h2>
           <LibraryGrid books={related} lang={lang} t={t} />
         </section>

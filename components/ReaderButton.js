@@ -13,8 +13,9 @@ import { useEffect, useRef } from 'react';
 // attaches only after the Meteor SPA boots — which is *after* iframe onLoad — so a
 // single on-load post can miss. We post on load and retry a few times until the
 // listener is up, and also reply if the viewer ever asks the parent for a language.
-export default function ReaderButton({ open, onClose, readerUrl, lang, label }) {
+export default function ReaderButton({ open, onClose, readerUrl, lang, label, onComplete }) {
   const iframeRef = useRef(null);
+  const meaningfullyEngagedRef = useRef(false);
   const src = `${readerUrl}/${lang}`;
 
   // Only ever message the reader host itself.
@@ -27,6 +28,10 @@ export default function ReaderButton({ open, onClose, readerUrl, lang, label }) 
 
   useEffect(() => {
     if (!open) return undefined;
+    meaningfullyEngagedRef.current = false;
+    const engagementTimer = setTimeout(() => {
+      meaningfullyEngagedRef.current = true;
+    }, 30000);
 
     const send = () => {
       const win = iframeRef.current?.contentWindow;
@@ -52,10 +57,18 @@ export default function ReaderButton({ open, onClose, readerUrl, lang, label }) 
     window.addEventListener('message', onMessage);
 
     return () => {
+      clearTimeout(engagementTimer);
       timers.forEach(clearTimeout);
       window.removeEventListener('message', onMessage);
     };
   }, [open, lang, readerOrigin]);
+
+  // The legacy reader is cross-origin and does not expose page-completion events.
+  // Closing it after 30 seconds is the conservative meaningful-engagement fallback.
+  const closeReader = () => {
+    if (meaningfullyEngagedRef.current) onComplete?.();
+    onClose();
+  };
 
   // Lock body scroll + close on Escape while open.
   useEffect(() => {
@@ -63,27 +76,27 @@ export default function ReaderButton({ open, onClose, readerUrl, lang, label }) 
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const onKey = (e) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') closeReader();
     };
     window.addEventListener('keydown', onKey);
     return () => {
       document.body.style.overflow = prevOverflow;
       window.removeEventListener('keydown', onKey);
     };
-  }, [open, onClose]);
+  }, [open, onClose, onComplete]);
 
   if (!open) return null;
 
   return (
     <div
       className="reader-overlay"
-      onClick={onClose}
+      onClick={closeReader}
       role="dialog"
       aria-modal="true"
       aria-label={label}
     >
       <div className="reader-frame" onClick={(e) => e.stopPropagation()}>
-        <button className="reader-close" onClick={onClose} aria-label="Close">
+        <button className="reader-close" onClick={closeReader} aria-label="Close">
           ×
         </button>
         <iframe

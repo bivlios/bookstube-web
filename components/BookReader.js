@@ -26,6 +26,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 export default function BookReader({
   fullscreen, onFullscreenChange, pages, audio, pageWidth, pageHeight, rtl,
   label, listenLabel, title, author, illustrator, byLabel, poweredByLabel, brandLabel, brandHref,
+  onComplete,
 }) {
   const [Flip, setFlip] = useState(null);
   const bookRef = useRef(null);
@@ -130,6 +131,7 @@ export default function BookReader({
       if (gen !== narrGen.current) return;
       if (lastVisible < total - 1) goNext(); // onFlip restarts narration on the new spread
       else {
+        onComplete?.();
         setNarrating(false);
         narratingRef.current = false;
       }
@@ -262,7 +264,11 @@ export default function BookReader({
               mobileScrollSupport
               startPage={startPageIndex}
               onFlip={(e) => {
-                setPage(toLogical(e.data));
+                const logicalPage = toLogical(e.data);
+                setPage(logicalPage);
+                // StPageFlip reports the left page of a final LTR spread and the
+                // right page for RTL. Reaching either final spread counts once.
+                if (logicalPage >= Math.max(total - 2, 0)) onComplete?.();
                 // Any flip (auto-advance or manual) restarts narration on the new spread.
                 if (narratingRef.current) {
                   stopAudio();

@@ -1,6 +1,7 @@
 import LangSwitcher from './LangSwitcher';
 import HeaderSearch from './HeaderSearch';
-import { tubeCta } from '@/lib/cta';
+import { tubeCreateAnonymCta } from '@/lib/cta';
+import TrackedCreateLink from './TrackedCreateLink';
 
 export default function Header({ lang, t }) {
   return (
@@ -17,14 +18,15 @@ export default function Header({ lang, t }) {
       />
       <div className="header-actions">
         <LangSwitcher lang={lang} />
-        <a
+        <TrackedCreateLink
           className="btn btn-header"
-          href={tubeCta('taglib_topbar')}
+          href={tubeCreateAnonymCta(lang, 'header_create')}
+          ctaLocation="header_create"
           target="_blank"
           rel="noopener"
         >
           {t('tagLibrary.cta')}
-        </a>
+        </TrackedCreateLink>
       </div>
     </header>
   );

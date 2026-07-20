@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { makeT } from '@/lib/i18n';
 import BookReader from './BookReader';
 import ReaderButton from './ReaderButton';
 import CoverImage from './CoverImage';
 import BookIdChip from './BookIdChip';
+import TrackedCreateLink from './TrackedCreateLink';
+import { trackEvent } from '@/lib/analytics';
 
 // Cover + facts + CTAs for the book detail page. Holds the reader's open state so
 // clicking the cover image opens the same overlay as the "Read illustrated book" CTA.
@@ -19,8 +21,20 @@ export default function BookDetailTop({ book, lang, bDir, readingMinutes, simila
   const [fullscreen, setFullscreen] = useState(false);
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const readCompleteTrackedRef = useRef(false);
   const readLabel = t('bookPage.readNow');
   const openReader = () => (usesNative ? setFullscreen(true) : setOpen(true));
+  const bookAnalytics = {
+    book_id: book.bookId,
+    book_title: book.title,
+    category: book.topics?.[0] || '',
+    language: book.orig_language || lang,
+  };
+  const trackReadComplete = () => {
+    if (readCompleteTrackedRef.current) return;
+    readCompleteTrackedRef.current = true;
+    trackEvent('bookstube_read_complete', bookAnalytics);
+  };
 
   // Copies the book's clean URL (origin + path only — no #bid hash, no query params) so
   // "share" always yields a pasteable link, instead of the OS share sheet that surfaces
@@ -79,9 +93,17 @@ export default function BookDetailTop({ book, lang, bDir, readingMinutes, simila
             <button type="button" className="btn btn-read" onClick={openReader}>
               {readLabel}
             </button>
-            <a className="btn btn-outline" href={similarHref} target="_blank" rel="noopener">
+            <TrackedCreateLink
+              className="btn btn-outline"
+              href={similarHref}
+              eventName="bookstube_similar_create_click"
+              ctaLocation="book_top_cta"
+              analytics={bookAnalytics}
+              target="_blank"
+              rel="noopener"
+            >
               {t('bookPage.createSimilar')}
-            </a>
+            </TrackedCreateLink>
             <button type="button" className="btn btn-outline btn-share" onClick={share}>
               <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true">
                 <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 1 0-3-3c0 .24.04.47.09.7L8.04 9.81A2.99 2.99 0 0 0 3 12a3 3 0 0 0 5.04 2.19l7.12 4.16c-.05.21-.08.43-.08.65a2.92 2.92 0 1 0 2.92-2.92z" />
@@ -110,6 +132,7 @@ export default function BookDetailTop({ book, lang, bDir, readingMinutes, simila
           poweredByLabel={t('book.powerdby')}
           brandLabel={t('book.booksgiant')}
           brandHref={`https://booksgiant.com/${lang}`}
+          onComplete={trackReadComplete}
         />
       ) : (
         <ReaderButton
@@ -118,6 +141,7 @@ export default function BookDetailTop({ book, lang, bDir, readingMinutes, simila
           readerUrl={book.readerUrl}
           lang={lang}
           label={readLabel}
+          onComplete={trackReadComplete}
         />
       )}
     </>

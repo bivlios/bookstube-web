@@ -1,3 +1,6 @@
+import { tubeCreateAnonymCta } from '@/lib/cta';
+import TrackedCreateLink from './TrackedCreateLink';
+
 const HERO_VIDEO_URL = 'https://s3.eu-west-1.amazonaws.com/school.booksgiant.com/video/books-tube-hero.mp4';
 
 // Full-bleed dark masthead. The visual is the "books flying through a cosmic
@@ -16,9 +19,15 @@ export default function Hero({ t, lang }) {
             <a className="btn btn-hero-primary" href="#library">
               {t('bookstubeHome.heroPrimaryCta')}
             </a>
-            <a className="btn btn-cta" href={`/${lang}/create`}>
+            <TrackedCreateLink
+              className="btn btn-cta"
+              href={tubeCreateAnonymCta(lang, 'homepage_hero')}
+              ctaLocation="homepage_hero"
+              target="_blank"
+              rel="noopener"
+            >
               {t('bookstubeHome.heroWriteCta')}
-            </a>
+            </TrackedCreateLink>
           </div>
         </div>
 

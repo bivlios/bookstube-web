@@ -7,6 +7,8 @@ import HeaderHeightSync from '@/components/HeaderHeightSync';
 import Analytics from '@/components/Analytics';
 import GARouteTracker from '@/components/GARouteTracker';
 import FeedbackFloat from '@/components/FeedbackFloat';
+import TrackedCreateLink from '@/components/TrackedCreateLink';
+import { tubeCreateAnonymCta } from '@/lib/cta';
 
 // This is the root layout (all routes are locale-prefixed via middleware).
 export function generateStaticParams() {
@@ -42,6 +44,16 @@ export default function RootLayout({ children, params }) {
           <a className="site-footer-feedback" href={`/${lang}/feedback`}>
             {t('feedbackPage.footerLink')}
           </a>
+          <span className="site-footer-separator" aria-hidden="true">·</span>
+          <TrackedCreateLink
+            className="site-footer-create"
+            href={tubeCreateAnonymCta(lang, 'footer_create')}
+            ctaLocation="footer_create"
+            target="_blank"
+            rel="noopener"
+          >
+            {t('bookstubeHome.heroWriteCta')}
+          </TrackedCreateLink>
         </footer>
       </body>
     </html>
