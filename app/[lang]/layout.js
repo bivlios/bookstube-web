@@ -26,6 +26,7 @@ export const metadata = {
 
 export default function RootLayout({ children, params }) {
   const lang = LOCALES.includes(params.lang) ? params.lang : DEFAULT_LOCALE;
+  const legalLang = ['he', 'en', 'ar'].includes(lang) ? lang : 'en';
   const t = makeT(lang);
   return (
     <html lang={lang} dir={dir(lang)}>
@@ -52,6 +53,24 @@ export default function RootLayout({ children, params }) {
           >
             {t('bookstubeHome.heroWriteCta')}
           </TrackedCreateLink>
+          <span className="site-footer-separator" aria-hidden="true">·</span>
+          <a
+            className="site-footer-legal"
+            href={`https://www.booksgiant.com/${legalLang}/privacy`}
+            target="_blank"
+            rel="noopener"
+          >
+            {t('legal.privacy')}
+          </a>
+          <span className="site-footer-separator" aria-hidden="true">·</span>
+          <a
+            className="site-footer-legal"
+            href={`https://www.booksgiant.com/${legalLang}/terms`}
+            target="_blank"
+            rel="noopener"
+          >
+            {t('legal.terms')}
+          </a>
         </footer>
       </body>
     </html>

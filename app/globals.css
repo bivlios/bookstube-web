@@ -693,6 +693,8 @@ a.pager-btn:active { transform: scale(.96); }
 .site-footer-feedback:hover { color: var(--orange); }
 .site-footer-create { font-weight: 800; color: #5a4192; }
 .site-footer-create:hover { color: var(--orange); text-decoration: underline; text-underline-offset: 3px; }
+.site-footer-legal { color: #626783; text-decoration: underline; text-underline-offset: 3px; }
+.site-footer-legal:hover { color: var(--orange); }
 
 /* Site-wide shortcuts to feedback and book requests. The narrow vertical rail
    stays readable without covering the library grid; it becomes a bottom bar on

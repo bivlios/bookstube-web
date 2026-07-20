@@ -93,6 +93,10 @@
     "successText": "You're signed up. Look for the next recommendation in your inbox.",
     "error": "We couldn't save your signup just now. Please try again in a moment."
   },
+  "legal": {
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Use"
+  },
   "feedbackPage": {
     "metaTitle": "Help shape BooksTube",
     "metaDescription": "Share feedback, suggest an idea, or request a book or topic for the BooksTube children's library.",

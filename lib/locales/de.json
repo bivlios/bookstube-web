@@ -93,6 +93,10 @@
     "successText": "Ihr seid angemeldet. Die nächste Empfehlung kommt per E-Mail.",
     "error": "Die Anmeldung konnte gerade nicht gespeichert werden. Bitte versucht es gleich noch einmal."
   },
+  "legal": {
+    "privacy": "Datenschutzerklärung",
+    "terms": "Nutzungsbedingungen"
+  },
   "feedbackPage": {
     "metaTitle": "BooksTube mitgestalten",
     "metaDescription": "Teilt Feedback und Ideen mit uns oder wünscht euch ein Buch oder Thema für die BooksTube-Kinderbibliothek.",
