@@ -1,5 +1,5 @@
 import { getLibrary } from '@/lib/api';
-import { makeT, dir, LOCALES } from '@/lib/i18n';
+import { makeT, dir, LOCALES, isBookLanguage } from '@/lib/i18n';
 import { topicKey } from '@/lib/topics';
 import { libBySlug, libName, libSlug, libIntro, libInLang, libParams, isHomeLib } from '@/lib/libraries';
 import { OG_IMAGE } from '@/lib/cta';
@@ -41,7 +41,9 @@ export default async function TagLibrary({ params, searchParams }) {
   const { lang, tagid } = params;
   const t = makeT(lang);
   const topic = searchParams?.topic || undefined;
-  const bookLang = LOCALES.includes(searchParams?.bookLang) ? searchParams.bookLang : undefined;
+  const bookLang = isBookLanguage(searchParams?.bookLang)
+    ? searchParams.bookLang.toLowerCase()
+    : undefined;
   const skip = Number(searchParams?.skip) || 0;
 
   // The URL segment is a friendly slug (legacy raw ids still resolve). Curated entries

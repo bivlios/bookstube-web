@@ -1,7 +1,9 @@
 import { getLibrary, getBook } from '@/lib/api';
-import { makeT, dir, LOCALES } from '@/lib/i18n';
+import { makeT, dir, LOCALES, isBookLanguage } from '@/lib/i18n';
 import { topicKey, topicByTag } from '@/lib/topics';
-import { libName, libSlug, libIntro, libParams, homeLibFor, featuredFor } from '@/lib/libraries';
+import {
+  libName, libSlug, libIntro, libParams, homeLibFor, featuredFor, DEFAULT_POOL_TAGS,
+} from '@/lib/libraries';
 import { OG_IMAGE } from '@/lib/cta';
 import Hero from '@/components/Hero';
 import LibrarySwitcher from '@/components/LibrarySwitcher';
@@ -41,7 +43,9 @@ export default async function LibraryHome({ params, searchParams }) {
   const { lang } = params;
   const t = makeT(lang);
   const topic = searchParams?.topic || undefined;
-  const bookLang = LOCALES.includes(searchParams?.bookLang) ? searchParams.bookLang : undefined;
+  const bookLang = isBookLanguage(searchParams?.bookLang)
+    ? searchParams.bookLang.toLowerCase()
+    : undefined;
   const skip = Number(searchParams?.skip) || 0;
 
   // This language's home collection (first entry of its LIBRARY_ORDER). `tags`
@@ -114,24 +118,36 @@ export default async function LibraryHome({ params, searchParams }) {
   const primary = hasLangBooks ? langData.books : data.books;
   const primaryTotal = hasLangBooks ? langData.total : data.total;
 
-  // Featured: try this language's home collection's curated `featured` list first
-  // (lib/libraries.js), in order, preferring an entry whose orig_language matches the
-  // visitor's language; falls back to the first resolving entry, then to the old
-  // heuristic (first same-language book with a summary) if the list is empty or every
-  // entry has gone stale.
+  // Featured: a recommendation must always match the site's interface language.
+  // Try this home collection's curated picks first, but never fall back to a curated
+  // book in another language. If none match, pick a same-language book from the home
+  // collection, then from the broader BooksTube catalog.
   let featured = null;
-  let firstResolvedFeatured = null;
   for (const idOrSlug of featuredFor(lang)) {
     const candidate = await getBook(idOrSlug, { seo: 1 }).catch(() => null);
-    if (!candidate) continue;
-    if (!firstResolvedFeatured) firstResolvedFeatured = candidate;
-    if (candidate.book?.orig_language === lang) { featured = candidate; break; }
+    if (candidate?.book?.orig_language === lang) { featured = candidate; break; }
   }
-  featured = featured || firstResolvedFeatured;
 
   if (!featured) {
-    const pick = primary.find((b) => b.summery) || data.books.find((b) => b.summery) || data.books[0];
-    featured = pick ? await getBook(pick.slug || pick.bookId, { seo: 1 }).catch(() => null) : null;
+    const homeLanguageBooks = (langData?.books || data.books || [])
+      .filter((book) => book.orig_language === lang);
+    let pick = homeLanguageBooks.find((book) => book.summery) || homeLanguageBooks[0];
+
+    if (!pick) {
+      const catalogLanguageData = await getLibrary({
+        tags: DEFAULT_POOL_TAGS,
+        bookLang: lang,
+        limit: LIMIT,
+      }).catch(() => null);
+      const catalogBooks = (catalogLanguageData?.books || [])
+        .filter((book) => book.orig_language === lang);
+      pick = catalogBooks.find((book) => book.summery) || catalogBooks[0];
+    }
+
+    const candidate = pick
+      ? await getBook(pick.slug || pick.bookId, { seo: 1 }).catch(() => null)
+      : null;
+    featured = candidate?.book?.orig_language === lang ? candidate : null;
   }
 
   return (

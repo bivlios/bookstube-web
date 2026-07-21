@@ -277,10 +277,11 @@ a { color: inherit; text-decoration: none; }
 .card-title {
   font-size: 13px; font-weight: 600; line-height: 1.3; color: #fff; margin: 0;
   padding: 10px 12px 2px; background: #385fc9;
+  text-align: start;
   flex-grow: 1; min-height: calc(2 * 1.3em + 12px); /* two lines + own padding */
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
-.card-author { font-size: 11px; color: rgba(255, 255, 255, .75); margin: 0; padding: 0 12px 10px; background: #385fc9; }
+.card-author { font-size: 11px; color: rgba(255, 255, 255, .75); margin: 0; padding: 0 12px 10px; background: #385fc9; text-align: start; }
 
 /* ── Bookshelves ── */
 /* Each shelf is a frosted panel holding one horizontal scroll-snap row of cards. It reads

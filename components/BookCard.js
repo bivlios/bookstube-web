@@ -1,4 +1,4 @@
-import { langBadge } from '@/lib/i18n';
+import { dir, langBadge } from '@/lib/i18n';
 import CoverImage from './CoverImage';
 
 // Server component — a real crawlable <article> + <a href> per book.
@@ -7,6 +7,7 @@ export default function BookCard({ book, lang, t }) {
   const title = book.translated_title || book.title || '';
   const author = (book.author?.name || '').trim().split(' ')[0];
   const badge = langBadge(book.orig_language);
+  const textDir = dir(book.orig_language);
 
   return (
     <article className="card">
@@ -23,8 +24,8 @@ export default function BookCard({ book, lang, t }) {
             </span>
           ) : null}
         </span>
-        <h3 className="card-title">{title}</h3>
-        {author ? <p className="card-author">{t('book.by')}{author}</p> : null}
+        <h3 className="card-title" dir={textDir}>{title}</h3>
+        {author ? <p className="card-author" dir={textDir}>{t('book.by')}{author}</p> : null}
       </a>
     </article>
   );

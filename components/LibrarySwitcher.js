@@ -21,9 +21,16 @@ export default function LibrarySwitcher({
   const libs = librariesFor(lang);
   const facetLangs = Array.isArray(availableLangs) ? availableLangs : [];
   const pageLangs = Array.isArray(books) ? books.map((book) => book.orig_language) : [];
-  const knownLangs = new Set([...facetLangs, ...pageLangs]);
+  const knownLangs = new Set(
+    [...facetLangs, ...pageLangs]
+      .filter((code) => typeof code === 'string' && code)
+      .map((code) => code.toLowerCase()),
+  );
   const langs = knownLangs.size
-    ? LOCALES.filter((code) => knownLangs.has(code))
+    ? [
+        ...LOCALES.filter((code) => knownLangs.has(code)),
+        ...[...knownLangs].filter((code) => !LOCALES.includes(code)).sort(),
+      ]
     : LOCALES;
   const showLangs = !!basePath && !!t && langs.length >= 2;
   if (libs.length < 2 && !showLangs) return null;
