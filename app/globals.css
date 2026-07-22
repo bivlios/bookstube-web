@@ -526,12 +526,13 @@ a.pager-btn:active { transform: scale(.96); }
 
 /* Info sheet after the cover — title / author / brand credit. */
 .flip-info { width: 100%; height: 100%; background: linear-gradient(160deg, #fff 0%, #f4f0ff 100%); display: grid; place-items: center; text-align: center; padding: 24px; }
-.flip-info-inner { max-width: 90%; }
+.flip-info-inner { width: 100%; }
 .flip-info-title { font-size: clamp(20px, 4.5vh, 34px); font-weight: 800; color: var(--ink, #2d2f6b); margin: 0 0 18px; line-height: 1.25; }
 .flip-info-line { font-size: clamp(15px, 3vh, 20px); color: var(--ink-soft, #555); margin: 0 0 8px; }
 .flip-info-line strong { color: var(--ink, #2d2f6b); font-weight: 700; }
 .flip-info-illus { font-style: italic; }
-.flip-info-logo { width: clamp(70px, 14vh, 110px); height: auto; margin: 22px auto 10px; display: block; opacity: .9; }
+/* Half the full page width: the inner percentage excludes 24px page padding per side. */
+.flip-page .flip-info-logo { width: calc(50% + 24px); max-width: 220px; height: auto; margin: 22px auto 10px; display: block; opacity: .9; }
 .flip-info-brand { margin-top: 6px; font-size: 13px; color: var(--ink-soft, #777); }
 .flip-info-brand span, .flip-info-brand a { color: var(--purple, #4f46e5); font-weight: 700; text-decoration: none; }
 .flip-info-brand a:hover { text-decoration: underline; }
@@ -543,9 +544,9 @@ a.pager-btn:active { transform: scale(.96); }
   background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 14px; color: #fff;
 }
-.reader-bar-meta { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
+.reader-bar-meta { display: flex; flex: 1 1 0; flex-direction: column; min-width: 0; line-height: 1.3; }
 .reader-bar-meta .rb-title { font-size: 18px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 46vw; }
-.reader-bar-meta .rb-author { font-size: 13px; color: rgba(255, 255, 255, 0.75); }
+.reader-bar-meta .rb-author { font-size: 13px; color: rgba(255, 255, 255, 0.75); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .reader-bar-controls { display: flex; align-items: center; gap: 14px; }
 .reader-bar-controls .rb-count { font-size: 15px; font-variant-numeric: tabular-nums; min-width: 56px; text-align: center; }
 .reader-bar-controls button {
@@ -631,6 +632,21 @@ a.pager-btn:active { transform: scale(.96); }
   }
   .reader-embed.is-fullscreen .native-reader {
     height: min(96vh, 1150px, calc(min(1800px, 100cqw) / var(--book-ar, 2) + 84px));
+  }
+
+  /* StPageFlip switches from a two-page spread to one portrait page below twice
+     minWidth (280px × 2). At that point the page needs twice the spread height;
+     using --book-ar here clipped roughly its lower half. Reserve 60px for the
+     compact mobile bar and 12px for its gap from the book. The sizer must switch
+     to the single-page ratio too, especially when a short viewport limits height. */
+  @container (max-width: 559px) {
+    .flip-sizer { aspect-ratio: var(--page-ar, 1) !important; }
+    .reader-embed:not(.is-fullscreen) .native-reader {
+      height: min(640px, calc(100cqw / var(--page-ar, 1) + 72px));
+    }
+    .reader-embed.is-fullscreen .native-reader {
+      height: min(96vh, 1150px, calc(100cqw / var(--page-ar, 1) + 72px));
+    }
   }
 }
 

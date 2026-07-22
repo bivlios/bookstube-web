@@ -232,10 +232,10 @@ export default function BookReader({
     <div
       ref={embedRef}
       className={`reader-embed${fullscreen ? ' is-fullscreen' : ''}`}
-      // The open book's spread aspect-ratio (two pages side by side) — the CSS uses it
-      // to shrink the reader's height to the book's own rendered height, so the control
-      // bar sits right under the book instead of at the bottom of a fixed-height box.
-      style={{ '--book-ar': (w * 2) / h }}
+      // The book's spread and single-page aspect ratios — CSS uses the appropriate
+      // value for StPageFlip's landscape or mobile portrait layout, so differently
+      // sized books keep their own proportions and the bar stays directly below.
+      style={{ '--book-ar': (w * 2) / h, '--page-ar': w / h }}
       onClick={onBackdrop}
       role={fullscreen ? 'dialog' : 'group'}
       aria-modal={fullscreen ? 'true' : undefined}

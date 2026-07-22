@@ -18,9 +18,9 @@ export function generateStaticParams() {
 export const metadata = {
   metadataBase: new URL(SITE_URL),
   icons: {
-    icon: '/images/robi_icon.png',
-    shortcut: '/images/robi_icon.png',
-    apple: '/images/robi_icon.png',
+    icon: '/images/logo-sml.png',
+    shortcut: '/images/logo-sml.png',
+    apple: '/images/logo-sml.png',
   },
 };
 
