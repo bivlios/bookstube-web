@@ -22,6 +22,9 @@ export const metadata = {
     shortcut: '/images/logo-sml.png',
     apple: '/images/logo-sml.png',
   },
+  facebook: {
+    appId: '243629420675233',
+  },
 };
 
 export default function RootLayout({ children, params }) {
